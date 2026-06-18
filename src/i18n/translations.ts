@@ -46,10 +46,16 @@ export const T: Record<string, Record<Locale, string>> = {
   'pref.nospicy':       { zh: '🫑 不辣', en: '🫑 Not' },
   'pref.food':          { zh: '🍽️ 菜', en: '🍽️ Food' },
   'pref.drinkType':     { zh: '🥤 饮料', en: '🥤 Drinks' },
-  'pref.reset':         { zh: '✕ 重置', en: '✕ Reset' },
+  'pref.reset':         { zh: '重置',   en: 'Reset' },
   'pref.random':        { zh: '随机摇一个', en: 'Random Pick' },
   'pref.noMatch':       { zh: '没有匹配的菜谱，试试放宽条件', en: 'No matches, try relaxing filters' },
   'pref.matchCount':    { zh: '道 · 点击摇一摇', en: 'matches · Tap to roll' },
+  'pref.yourTaste':     { zh: '你的口味',          en: 'Your Taste' },
+  'pref.resetConfirm':  { zh: '确定要重置口味学习数据吗？这将清除所有偏好。', en: 'Reset taste learning data? This clears all preferences.' },
+  'pref.autoHint':      { zh: '已根据你的口味自动排序。手动设置将覆盖自动偏好。', en: 'Sorted by your taste. Manual filters will override.' },
+  'pref.sortPreference':{ zh: '按口味推荐',          en: 'By Taste' },
+  'pref.sortAlpha':     { zh: '按名称 A-Z',          en: 'A-Z' },
+  'pref.explore':       { zh: '尝鲜',               en: 'Explore' },
 
   /* Filters */
   'filter.quick':       { zh: '快捷筛选', en: 'Quick Filter' },
