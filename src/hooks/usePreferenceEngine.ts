@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from 'react'
-import { RECIPES } from '../data/recipes'
 import type { Recipe, PreferenceProfile, ActionType, Category } from '../data/types'
 import { useStoredState } from './useStoredState'
 

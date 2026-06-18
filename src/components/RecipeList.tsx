@@ -12,6 +12,7 @@ interface RecipeListProps {
   inventory: Set<string>
   recentIds: string[]
   favoriteIds: Set<string>
+  recipeScores: Map<string, number>
   activeTab: 'discover' | 'browse'
   onTabChange: (tab: 'discover' | 'browse') => void
   drinkSub: 'all' | 'alcoholic' | 'nonalcoholic'

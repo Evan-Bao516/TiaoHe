@@ -8,6 +8,7 @@ import type { Step } from '../data/types'
 interface FocusModeProps {
   steps: Step[]
   onExit: () => void
+  onComplete: (completionRatio: number) => void
 }
 
 function parseDuration(duration: string): number {

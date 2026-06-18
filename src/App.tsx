@@ -16,6 +16,7 @@ import CartSheet from './components/CartSheet'
 import InventoryPanel from './components/InventoryPanel'
 import StandaloneTimer from './components/StandaloneTimer'
 import RecipeList from './components/RecipeList'
+import PreferenceBar from './components/PreferenceBar'
 
 export default function App() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
@@ -199,6 +200,7 @@ export default function App() {
       {/* ── Browse ──────────────────────────────────────────────── */}
       {!selectedRecipe && (
         <div>
+          <PreferenceBar tags={preferenceTags} onReset={engine.reset} />
           <RecipeList
             cartCount={cartCount}
             inventory={inventory}
