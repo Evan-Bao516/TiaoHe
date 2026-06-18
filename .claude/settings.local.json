@@ -26,7 +26,9 @@
       "Bash(gh auth *)",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit -m 'Initial commit: TiaoHe Cooking Lab PWA *)"
+      "Bash(git commit -m 'Initial commit: TiaoHe Cooking Lab PWA *)",
+      "Bash(~/.claude/plugins/cache/claude-plugins-official/superpowers/6.0.2/skills/subagent-driven-development/scripts/task-brief *)",
+      "Bash(git commit *)"
     ]
   }
 }
