@@ -1,7 +1,9 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { Timer, ChevronRight, Minus, Plus } from 'lucide-react'
 import type { Recipe, Category } from './data/types'
+import { RECIPES } from './data/recipes'
 import { useStoredState } from './hooks/useStoredState'
+import { usePreferenceEngine } from './hooks/usePreferenceEngine'
 import { useToast } from './components/ToastProvider'
 import { useLang } from './i18n/context'
 import { haptic } from './utils/haptic'
@@ -30,6 +32,15 @@ export default function App() {
   const [servings, setServings] = useState(2)
   const { toast } = useToast()
   const { lang, t } = useLang()
+  const engine = usePreferenceEngine()
+  const recipeScores = useMemo(
+    () => engine.scoreAll(RECIPES),
+    [engine.scoreAll],
+  )
+  const preferenceTags = useMemo(
+    () => engine.generateTags(lang),
+    [engine.generateTags, lang],
+  )
 
   /* ── Persistent state ─────────────────────────────────────── */
   const [_invArr, setInvArr] = useStoredState<string[]>('inventory', [])
@@ -112,7 +123,8 @@ export default function App() {
     } else {
       setActiveSubstitutions(new Set())
     }
-  }, [inventory])
+    engine.record(recipe, 'view')
+  }, [inventory, engine])
 
   const handleToggleFavorite = useCallback(() => {
     if (!selectedRecipe) return
@@ -122,9 +134,10 @@ export default function App() {
         ? prev.filter((id) => id !== selectedRecipe.id)
         : [...prev, selectedRecipe.id],
     )
+    engine.record(selectedRecipe, wasFavorited ? 'unfavorite' : 'favorite')
     toast(wasFavorited ? t('toast.unfavorited') : t('toast.favorited'))
     haptic('medium')
-  }, [selectedRecipe, setFavArr, toast, favoriteIds])
+  }, [selectedRecipe, setFavArr, toast, favoriteIds, engine])
 
   const handleToggleSubstitution = useCallback((id: string) => {
     setActiveSubstitutions((prev) => {
@@ -137,9 +150,10 @@ export default function App() {
 
   const handleAddToCart = useCallback((id: string) => {
     setCartItems((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }))
+    if (selectedRecipe) engine.record(selectedRecipe, 'cart')
     toast('已加入购物清单 🛒')
     haptic('light')
-  }, [toast])
+  }, [toast, selectedRecipe, engine])
 
   const handleRemoveFromCart = useCallback((id: string) => {
     setCartItems((prev) => {
@@ -151,6 +165,12 @@ export default function App() {
   }, [])
 
   const handleClearCart = useCallback(() => { setCartItems({}); toast('购物清单已清空') }, [toast])
+
+  const handleFocusComplete = useCallback((completionRatio: number) => {
+    if (completionRatio > 0.5 && selectedRecipe) {
+      engine.record(selectedRecipe, 'cook')
+    }
+  }, [engine, selectedRecipe])
 
   const handleToggleInventory = useCallback((nameZh: string) => {
     setInventory((prev) => {
@@ -184,6 +204,7 @@ export default function App() {
             inventory={inventory}
             recentIds={recentIds}
             favoriteIds={favoriteIds}
+            recipeScores={recipeScores}
             activeTab={activeTab}
             onTabChange={setActiveTab}
             drinkSub={drinkSub}
@@ -314,7 +335,7 @@ export default function App() {
 
       {/* ── Focus Mode ──────────────────────────────────────────── */}
       {selectedRecipe && isFocusMode && (
-        <FocusMode key={`focus-${selectedRecipe.id}`} steps={selectedRecipe.steps} onExit={() => setFocusMode(false)} />
+        <FocusMode key={`focus-${selectedRecipe.id}`} steps={selectedRecipe.steps} onExit={() => setFocusMode(false)} onComplete={handleFocusComplete} />
       )}
 
       {/* ── Standalone Timer ─────────────────────────────────── */}
