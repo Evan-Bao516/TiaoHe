@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+/* ── Design Tokens ────────────────────────────────────────────────
+   Cyber Slate & Amber Highlights — Cyberpunk Bauhaus Minimalist
+   Palette: #0A0E17 bg | #121620 / #1A1F2C cards | #FF9F0A amber
+   Grid:    #00E5FF ice blue | #FF2E93 substitution pink
+   Type:    Rajdhani (display) | DM Sans (body) | Space Mono (data)
+   ─────────────────────────────────────────────────────────────── */
+
+@theme {
+  --color-slate-950: #0A0E17;
+  --color-slate-900: #0D111A;
+  --color-charcoal-900: #121620;
+  --color-charcoal-800: #1A1F2C;
+  --color-charcoal-700: #232938;
+  --color-amber-500: #FF9F0A;
+  --color-amber-600: #E08C00;
+  --color-ice-400: #00E5FF;
+  --color-ice-500: #00B8D4;
+  --color-pink-500: #FF2E93;
+  --color-text-primary: #F4F4F4;
+  --color-text-muted: #8A94A6;
+  --color-text-dim: #5A6272;
+
+  --font-display: 'Rajdhani', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-body: 'DM Sans', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+  --font-mono: 'Space Mono', 'SF Mono', 'Menlo', monospace;
+}
+
+/* ── Base ─────────────────────────────────────────────────────── */
+
+body {
+  margin: 0;
+  background-color: #0A0E17;
+  color: #F4F4F4;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Bauhaus geometric ground — subtle structural diamond grid */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(135deg, rgba(0, 229, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(225deg, rgba(0, 229, 255, 0.018) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── Scrollbar: hidden globally ───────────────────────────────── */
+
+::-webkit-scrollbar {
+  display: none;
+}
+* {
+  scrollbar-width: none;
+}
+
+/* ── Focus ring ───────────────────────────────────────────────── */
+
+*:focus-visible {
+  outline: 2px solid #FF9F0A;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Keyframes ────────────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: fade-in-up 0.35s ease-out both;
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(40px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes slide-in-left {
+  from { transform: translateX(-40px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+.page-enter-forward {
+  animation: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.page-enter-back {
+  animation: slide-in-left 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Focus Mode: force landscape via CSS rotation ──────────────── */
+.focus-landscape {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vh;
+  height: 100vw;
+  transform: rotate(90deg);
+  transform-origin: top left;
+  overflow: hidden;
+}
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create *)",
+      "Bash(npx *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/src/index.css)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/)",
+      "Skill(remember:remember)",
+      "Bash(cat)",
+      "Bash(python3 /tmp/tags.py)",
+      "Bash(sed -i '' 's/>{r.nameZh}</span>/>{r.emoji} {r.nameZh}</span>/g' src/components/RecipeList.tsx)",
+      "Bash(sed -i '' 's/>{recipe.nameZh}</span>/>{recipe.emoji} {recipe.nameZh}</span>/g' src/components/RecipeList.tsx)",
+      "Bash(python3 *)",
+      "Bash(grep -v 't\\(`')",
+      "Bash(grep -v \"// \\\\|{/\\\\*\\\\|translations\\\\|nameZh\\\\|\\\\.zh\\\\|detail\\\\|\\\\.en\\\\|import\\\\|nameEn\\\\|'zh'\\\\|t\\('\\\\|\\\\`tab\\\\|\\\\`scene\\\\|recipes\\\\|\\\\${t\\(\\\\|{t\\(\\\\|t\\(\\\\`\")",
+      "Bash(vercel --version)",
+      "Bash(npm i *)",
+      "Bash(NODE_TLS_REJECT_UNAUTHORIZED=0 npx vercel *)",
+      "Bash(open *)",
+      "mcp__plugin_vercel_vercel__list_teams",
+      "mcp__plugin_vercel_vercel__deploy_to_vercel",
+      "Read(//Users/evanbao/.claude/**)",
+      "Bash(gh auth *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Initial commit: TiaoHe Cooking Lab PWA *)"
+    ]
+  }
+}

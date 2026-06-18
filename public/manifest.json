@@ -1,0 +1,18 @@
+{
+  "name": "TiaoHe · 调和 — 调和五味 · 掌控厨房",
+  "short_name": "TiaoHe",
+  "description": "探索风味，掌控厨房 — 智能菜谱助手，食材替换、偏好推荐、计时引导",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A0E17",
+  "theme_color": "#0A0E17",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
