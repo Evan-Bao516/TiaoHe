@@ -69,3 +69,29 @@ export interface Recipe {
   ingredients: Ingredient[]
   steps: Step[]
 }
+
+/** Flavor preference vector — mirrors FlavorProfile structure */
+export interface FlavorPreference {
+  acid: number
+  sweet: number
+  bitter: number
+  spicy: number
+  salty: number
+  umami: number
+}
+
+/** Category weighted counts */
+export type CategoryPreference = Record<Category, number>
+
+/** User action types for preference learning */
+export type ActionType = 'view' | 'favorite' | 'unfavorite' | 'cook' | 'cart'
+
+/** Learned user preference profile */
+export interface PreferenceProfile {
+  flavor: FlavorPreference
+  categories: CategoryPreference
+  timePreference: [number, number, number]   // [fast, medium, long]
+  difficultyPreference: [number, number, number] // [easy, medium, hard]
+  totalInteractions: number
+  lastUpdated: number
+}
