@@ -20,7 +20,7 @@ const ALL_NAMES = getAllIngredientNames()
 
 export default function ReverseSearch({
   inventory, preferenceScores, onSelect, onQuickAddMissing,
-  onToggleRecipeFavorite, favoriteIds,
+  onToggleRecipeFavorite, favoriteIds, onAddToInventory,
 }: ReverseSearchProps) {
   const { t, lang } = useLang()
   const [ingredients, setIngredients] = useState<string[]>([])
@@ -60,6 +60,20 @@ export default function ReverseSearch({
   // Active section for jump buttons
   const [activeSection, setActiveSection] = useState<'perfect' | 'near' | 'partial' | null>(null)
   const [focused, setFocused] = useState(false)
+  const [addedToFridge, setAddedToFridge] = useState<Set<string>>(new Set())
+
+  const handleAddAllToInventory = (recipe: Recipe) => {
+    for (const ing of recipe.ingredients) {
+      if (!inventory.has(ing.nameZh)) {
+        onAddToInventory(ing.nameZh)
+      }
+    }
+    setAddedToFridge((prev) => {
+      const next = new Set(prev)
+      next.add(recipe.id)
+      return next
+    })
+  }
 
   return (
     <div className="flex flex-col min-h-0">
@@ -91,9 +105,9 @@ export default function ReverseSearch({
           )}
         </div>
 
-        {/* Ingredient chips */}
+        {/* Ingredient chips + clear all */}
         {ingredients.length > 0 && (
-          <div className="flex gap-1.5 flex-wrap mt-2">
+          <div className="flex gap-1.5 flex-wrap mt-2 items-center">
             {ingredients.map((name) => (
               <span key={name} onClick={() => removeIngredient(name)}
                 className="px-2 py-0.5 rounded text-[10px] cursor-pointer hover:opacity-70 flex items-center gap-1"
@@ -101,6 +115,11 @@ export default function ReverseSearch({
                 {name} <X size={10} />
               </span>
             ))}
+            <button onClick={() => setIngredients([])}
+              className="px-2 py-0.5 rounded text-[9px] hover:text-[#FF2E93] transition-colors flex-shrink-0"
+              style={{ fontFamily: 'var(--font-mono)', color: '#5A6272' }}>
+              ✕ {lang === 'en' ? 'Clear All' : '清空'}
+            </button>
           </div>
         )}
 
@@ -203,12 +222,21 @@ export default function ReverseSearch({
                 </div>
                 <div className="flex flex-col gap-2">
                   {near.map((r) => (
-                    <RecipeCard key={r.recipe.id} recipe={r.recipe} inventory={inventory} lang={lang}
-                      onClick={() => onSelect(r.recipe)}
-                      onQuickAddMissing={onQuickAddMissing}
-                      onFavorite={() => onToggleRecipeFavorite(r.recipe.id)}
-                      isFavorited={favoriteIds.has(r.recipe.id)}
-                      matchBadge={{ type: 'near', missingCount: r.missingCount, substitutableCount: r.substitutableCount }} />
+                    <div key={r.recipe.id} className="relative">
+                      <RecipeCard recipe={r.recipe} inventory={inventory} lang={lang}
+                        onClick={() => onSelect(r.recipe)}
+                        onQuickAddMissing={onQuickAddMissing}
+                        onFavorite={() => onToggleRecipeFavorite(r.recipe.id)}
+                        isFavorited={favoriteIds.has(r.recipe.id)}
+                        matchBadge={{ type: 'near', missingCount: r.missingCount, substitutableCount: r.substitutableCount }} />
+                      {!addedToFridge.has(r.recipe.id) && (
+                        <button onClick={(e) => { e.stopPropagation(); handleAddAllToInventory(r.recipe) }}
+                          className="absolute bottom-2 right-3 px-2 py-0.5 rounded text-[9px] transition-all hover:brightness-110"
+                          style={{ fontFamily: 'var(--font-mono)', color: '#10B981', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                          + {t('rsearch.addToInventory')}
+                        </button>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -225,12 +253,21 @@ export default function ReverseSearch({
                 </div>
                 <div className="flex flex-col gap-2">
                   {partial.map((r) => (
-                    <RecipeCard key={r.recipe.id} recipe={r.recipe} inventory={inventory} lang={lang}
-                      onClick={() => onSelect(r.recipe)}
-                      onQuickAddMissing={onQuickAddMissing}
-                      onFavorite={() => onToggleRecipeFavorite(r.recipe.id)}
-                      isFavorited={favoriteIds.has(r.recipe.id)}
-                      matchBadge={{ type: 'partial', missingCount: r.missingCount, substitutableCount: r.substitutableCount }} />
+                    <div key={r.recipe.id} className="relative">
+                      <RecipeCard recipe={r.recipe} inventory={inventory} lang={lang}
+                        onClick={() => onSelect(r.recipe)}
+                        onQuickAddMissing={onQuickAddMissing}
+                        onFavorite={() => onToggleRecipeFavorite(r.recipe.id)}
+                        isFavorited={favoriteIds.has(r.recipe.id)}
+                        matchBadge={{ type: 'partial', missingCount: r.missingCount, substitutableCount: r.substitutableCount }} />
+                      {!addedToFridge.has(r.recipe.id) && (
+                        <button onClick={(e) => { e.stopPropagation(); handleAddAllToInventory(r.recipe) }}
+                          className="absolute bottom-2 right-3 px-2 py-0.5 rounded text-[9px] transition-all hover:brightness-110"
+                          style={{ fontFamily: 'var(--font-mono)', color: '#10B981', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                          + {t('rsearch.addToInventory')}
+                        </button>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
