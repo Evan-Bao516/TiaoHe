@@ -15,9 +15,8 @@ import FocusMode from './components/FocusMode'
 import CartSheet from './components/CartSheet'
 import InventoryPanel from './components/InventoryPanel'
 import StandaloneTimer from './components/StandaloneTimer'
+import CookEntryForm from './components/CookEntryForm'
 import RecipeList from './components/RecipeList'
-import PreferenceBar from './components/PreferenceBar'
-
 export default function App() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
   const [isFocusMode, setFocusMode] = useState(false)
@@ -27,10 +26,12 @@ export default function App() {
   const [expandedStep, setExpandedStep] = useState<number | null>(null)
   const [isInventoryOpen, setIsInventoryOpen] = useState(false)
   const [isTimerOpen, setIsTimerOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<'discover' | 'browse'>('discover')
+  const [activeTab, setActiveTab] = useState<'discover' | 'browse' | 'journal'>('discover')
   const [drinkSub, setDrinkSub] = useState<'all' | 'alcoholic' | 'nonalcoholic'>('all')
   const [browseSub, setBrowseSub] = useState<Category | 'all'>('all')
   const [servings, setServings] = useState(2)
+  const [journalFormRecipe, setJournalFormRecipe] = useState<Recipe | null>(null)
+  const [journalFormRatio, setJournalFormRatio] = useState(1)
   const { toast } = useToast()
   const { lang, t } = useLang()
   const engine = usePreferenceEngine()
@@ -94,15 +95,18 @@ export default function App() {
   }, [selectedRecipe?.id, missingIds.size])
 
   const handleBack = useCallback(() => {
+    window.scrollTo(0, 0)
     setSelectedRecipe(null)
     setFocusMode(false)
     setSelectedIngredient(null)
     setActiveSubstitutions(new Set())
     setIsCartOpen(false)
     setExpandedStep(null)
+    setJournalFormRecipe(null)
   }, [])
 
   const handleSelectRecipe = useCallback((recipe: Recipe) => {
+    window.scrollTo(0, 0)
     setSelectedRecipe(recipe)
     setFocusMode(false)
     setSelectedIngredient(null)
@@ -138,7 +142,7 @@ export default function App() {
     engine.record(selectedRecipe, wasFavorited ? 'unfavorite' : 'favorite')
     toast(wasFavorited ? t('toast.unfavorited') : t('toast.favorited'))
     haptic('medium')
-  }, [selectedRecipe, setFavArr, toast, favoriteIds, engine])
+  }, [selectedRecipe, setFavArr, toast, favoriteIds, engine, t])
 
   const handleToggleSubstitution = useCallback((id: string) => {
     setActiveSubstitutions((prev) => {
@@ -152,9 +156,9 @@ export default function App() {
   const handleAddToCart = useCallback((id: string) => {
     setCartItems((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }))
     if (selectedRecipe) engine.record(selectedRecipe, 'cart')
-    toast('已加入购物清单 🛒')
+    toast(t('toast.addedCart'))
     haptic('light')
-  }, [toast, selectedRecipe, engine])
+  }, [toast, selectedRecipe, engine, t])
 
   const handleRemoveFromCart = useCallback((id: string) => {
     setCartItems((prev) => {
@@ -165,11 +169,13 @@ export default function App() {
     })
   }, [])
 
-  const handleClearCart = useCallback(() => { setCartItems({}); toast('购物清单已清空') }, [toast])
+  const handleClearCart = useCallback(() => { setCartItems({}); toast(t('toast.clearedCart')) }, [toast, t])
 
   const handleFocusComplete = useCallback((completionRatio: number) => {
     if (completionRatio > 0.5 && selectedRecipe) {
       engine.record(selectedRecipe, 'cook')
+      setJournalFormRecipe(selectedRecipe)
+      setJournalFormRatio(completionRatio)
     }
   }, [engine, selectedRecipe])
 
@@ -200,7 +206,6 @@ export default function App() {
       {/* ── Browse ──────────────────────────────────────────────── */}
       {!selectedRecipe && (
         <div>
-          <PreferenceBar tags={preferenceTags} onReset={engine.reset} />
           <RecipeList
             cartCount={cartCount}
             inventory={inventory}
@@ -222,6 +227,8 @@ export default function App() {
               setFavArr((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])
               haptic('medium')
             }}
+            preferenceTags={preferenceTags}
+            onResetPreferences={engine.reset}
           />
         </div>
       )}
@@ -361,6 +368,22 @@ export default function App() {
           onAdd={handleAddToCart}
           onRemove={handleRemoveFromCart}
           onClear={handleClearCart}
+        />
+      )}
+
+      {/* ── Cooking Journal Entry Form ───────────────────── */}
+      {journalFormRecipe && (
+        <CookEntryForm
+          recipe={journalFormRecipe}
+          completionRatio={journalFormRatio}
+          existingTags={[]}
+          onSubmit={(data) => {
+            engine.record(journalFormRecipe, 'cook', { rating: data.rating, tags: data.customTags })
+            setJournalFormRecipe(null)
+          }}
+          onCancel={() => {
+            setJournalFormRecipe(null)
+          }}
         />
       )}
     </>

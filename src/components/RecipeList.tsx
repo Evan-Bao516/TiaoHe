@@ -3,9 +3,11 @@ import { Search, Flame, ChefHat, Sparkles, BookOpen, Grid3X3, ShoppingCart, Shuf
 import type { Recipe, Category } from '../data/types'
 import { RECIPES } from '../data/recipes'
 import RecipeCard from './RecipeCard'
+import PreferenceBar from './PreferenceBar'
 import { useStoredState } from '../hooks/useStoredState'
 import { useLang } from '../i18n/context'
 import FridgeIcon from './FridgeIcon'
+import CookJournal from './CookJournal'
 
 interface RecipeListProps {
   cartCount: number
@@ -13,8 +15,8 @@ interface RecipeListProps {
   recentIds: string[]
   favoriteIds: Set<string>
   recipeScores: Map<string, number>
-  activeTab: 'discover' | 'browse'
-  onTabChange: (tab: 'discover' | 'browse') => void
+  activeTab: 'discover' | 'browse' | 'journal'
+  onTabChange: (tab: 'discover' | 'browse' | 'journal') => void
   drinkSub: 'all' | 'alcoholic' | 'nonalcoholic'
   onDrinkSubChange: (sub: 'all' | 'alcoholic' | 'nonalcoholic') => void
   browseSub: Category | 'all'
@@ -25,11 +27,14 @@ interface RecipeListProps {
   onOpenTimer: () => void
   onQuickAddMissing: (recipe: Recipe) => void
   onToggleRecipeFavorite: (id: string) => void
+  preferenceTags: string[]
+  onResetPreferences: () => void
 }
 
-const TABS: { key: 'discover' | 'browse'; icon: typeof Flame }[] = [
+const TABS: { key: 'discover' | 'browse' | 'journal'; icon: typeof Flame }[] = [
   { key: 'discover', icon: Sparkles },
   { key: 'browse', icon: Grid3X3 },
+  { key: 'journal', icon: BookOpen },
 ]
 
 const BROWSE_SUBS: { key: Category | 'all'; icon: typeof Flame }[] = [
@@ -47,7 +52,7 @@ const SCENES: { key: string; color: string; filter: (r: Recipe) => boolean }[] =
   { key: 'drinks', color: '#FF2E93', filter: (r) => r.category === 'drink' },
 ]
 
-export default function RecipeList({ cartCount, inventory, recentIds, favoriteIds, activeTab, onTabChange, drinkSub, onDrinkSubChange, browseSub, onBrowseSubChange, onSelect, onOpenCart, onOpenInventory, onOpenTimer, onQuickAddMissing, onToggleRecipeFavorite }: RecipeListProps) {
+export default function RecipeList({ cartCount, inventory, recentIds, favoriteIds, recipeScores, activeTab, onTabChange, drinkSub, onDrinkSubChange, browseSub, onBrowseSubChange, onSelect, onOpenCart, onOpenInventory, onOpenTimer, onQuickAddMissing, onToggleRecipeFavorite, preferenceTags, onResetPreferences }: RecipeListProps) {
   const [query, setQuery] = useState('')
   const [showMakeable, setShowMakeable] = useState(false)
   const [showFavorites, setShowFavorites] = useState(false)
@@ -60,6 +65,7 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
   const [prefTime, setPrefTime] = useState<'all' | 'fast' | 'medium' | 'long'>('all')
   const [prefType, setPrefType] = useState<'all' | 'food' | 'drink'>('all')
   const [showFab, setShowFab] = useState(false)
+  const [sortMode, setSortMode] = useState<'preference' | 'alphabetical'>('preference')
   const [searchHistory, setSearchHistory] = useStoredState<string[]>('searchHistory', [])
   const [searchFocused, setSearchFocused] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -129,23 +135,26 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
     if (timeFilter === 'fast') list = list.filter((r) => parseInt(r.prepTime) <= 15)
     if (timeFilter === 'medium') list = list.filter((r) => { const t = parseInt(r.prepTime); return t > 15 && t <= 30 })
     if (timeFilter === 'long') list = list.filter((r) => parseInt(r.prepTime) > 30)
-    list = [...list].sort((a, b) => a.nameZh.localeCompare(b.nameZh, 'zh'))
+    // Sort: preference by default (with A-Z tiebreaker), alphabetical on toggle
+    if (sortMode === 'alphabetical') {
+      list = [...list].sort((a, b) => a.nameZh.localeCompare(b.nameZh, 'zh'))
+    } else if (recipeScores.size > 0) {
+      list = [...list].sort((a, b) => {
+        const diff = (recipeScores.get(b.id) ?? 0.5) - (recipeScores.get(a.id) ?? 0.5)
+        if (diff !== 0) return diff
+        return a.nameZh.localeCompare(b.nameZh, 'zh')
+      })
+    } else {
+      list = [...list].sort((a, b) => a.nameZh.localeCompare(b.nameZh, 'zh'))
+    }
     return list
-  }, [activeTab, browseSub, query, showMakeable, canMake, inventory, showFavorites, favoriteIds, drinkSub, difficultyFilter, timeFilter])
+  }, [activeTab, browseSub, query, showMakeable, canMake, inventory, showFavorites, favoriteIds, drinkSub, difficultyFilter, timeFilter, sortMode, recipeScores])
 
   /* Recently viewed */
   const recentRecipes = useMemo(
     () => recentIds.map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean) as Recipe[],
     [recentIds],
   )
-
-  /* "You might like" — same category as most recent */
-  const suggestedRecipes = useMemo(() => {
-    if (recentRecipes.length === 0) return []
-    const recentCat = recentRecipes[0].category
-    const recentId = recentRecipes[0].id
-    return RECIPES.filter((r) => r.category === recentCat && r.id !== recentId && !recentIds.includes(r.id)).slice(0, 3)
-  }, [recentRecipes, recentIds])
 
   /* Preference-matched recipes */
   const prefMatches = useMemo(() => {
@@ -173,34 +182,13 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
     handleSelect(pick)
   }
 
-  /* Flavor similarity for smart recommendations */
-  const flavorSimilar = useMemo(() => {
-    if (recentRecipes.length === 0) return []
-    const recent = recentRecipes[0]
-    const scores = RECIPES
-      .filter((r) => r.id !== recent.id)
-      .map((r) => {
-        const fp1 = recent.flavorProfile; const fp2 = r.flavorProfile
-        const dist = Math.sqrt(
-          (fp1.acid - fp2.acid) ** 2 + (fp1.sweet - fp2.sweet) ** 2 +
-          (fp1.bitter - fp2.bitter) ** 2 + (fp1.spicy - fp2.spicy) ** 2 +
-          (fp1.salty - fp2.salty) ** 2 + (fp1.umami - fp2.umami) ** 2
-        )
-        return { recipe: r, score: 1 - dist / Math.sqrt(6) }
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
-      .filter((s) => s.score > 0.3)
-    return scores
-  }, [recentRecipes])
-
   return (
     <div className="min-h-svh flex flex-col" style={{ background: '#0A0E17' }}>
       {/* ── Header ────────────────────────────────────────────── */}
       <header className="px-5 pt-12 pb-2">
         <div className="flex items-center gap-3">
           {/* App icon */}
-          <img src="/icon.png" alt="TiaoHe" className="w-16 h-16 rounded-2xl flex-shrink-0" />
+          <img src="/icon-v2.png" alt="TiaoHe" className="w-16 h-16 rounded-2xl flex-shrink-0" />
           <div className="flex items-baseline gap-3">
             <h1 className="text-[24px] tracking-[0.04em] text-text-primary leading-none"
               style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>{t('app.title')}</h1>
@@ -274,7 +262,7 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
             <div className="flex items-center justify-between px-4 py-2">
               <span className="text-[9px] tracking-[0.1em] uppercase text-text-dim" style={{ fontFamily: 'var(--font-mono)' }}>{t('search.history')}</span>
               <button onClick={() => setSearchHistory([])} className="text-[9px] text-text-dim hover:text-text-primary"
-                style={{ fontFamily: 'var(--font-mono)' }}>清除</button>
+                style={{ fontFamily: 'var(--font-mono)' }}>{t('search.clear')}</button>
             </div>
             {searchHistory.map((term, i) => (
               <button key={i} onClick={() => { setQuery(term); searchInputRef.current?.focus() }}
@@ -303,6 +291,13 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
           {hasPrefs ? `${prefMatches.length} ${t('pref.matchCount')} · ${t('pref.random')}` : t('blindbox.button')}
           <ChevronDown size={14} strokeWidth={1.5} className={`transition-transform ${showPrefs ? 'rotate-180' : ''}`} />
         </button>
+
+        {!showPrefs && !hasPrefs && recipeScores.size > 0 && (
+          <p className="mt-1.5 text-[10px] text-text-dim"
+            style={{ fontFamily: 'var(--font-body)', opacity: 0.6 }}>
+            💡 {t('pref.autoHint')}
+          </p>
+        )}
 
         {showPrefs && (
           <div className="mt-2 p-4 rounded-md animate-in"
@@ -493,7 +488,7 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
             {(difficultyFilter !== 'all' || timeFilter !== 'all') && (
               <button onClick={() => { setDifficultyFilter('all'); setTimeFilter('all') }}
                 className="mt-2 text-[10px] text-text-dim hover:text-text-primary"
-                style={{ fontFamily: 'var(--font-mono)' }}>✕ 清除所有筛选</button>
+                style={{ fontFamily: 'var(--font-mono)' }}>{t('filter.clearAll')}</button>
             )}
           </div>
         )}
@@ -533,7 +528,7 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
               border: showMakeable ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(138, 148, 166, 0.08)',
             }}>
             <CheckCircle2 size={12} strokeWidth={1.5} />
-            我能做的 ({RECIPES.filter((r) => canMake.has(r.id) && (browseSub === 'all' || r.category === browseSub)).length})
+            {t('filter.makeable')} ({RECIPES.filter((r) => canMake.has(r.id) && (browseSub === 'all' || r.category === browseSub)).length})
           </button>
         </div>
       )}
@@ -547,17 +542,20 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
             style={{ background: 'rgba(255, 46, 147, 0.04)', border: '1px solid rgba(255, 46, 147, 0.1)' }}>
             <span className="text-[11px] tracking-[0.06em] flex items-center gap-1.5"
               style={{ fontFamily: 'var(--font-mono)', color: '#FF2E93' }}>
-              <Heart size={12} strokeWidth={1.5} fill="#FF2E93" /> 我的收藏 · {filtered.length} 道
+              <Heart size={12} strokeWidth={1.5} fill="#FF2E93" /> {t('home.favorites')} · {filtered.length}
             </span>
             <button onClick={() => setShowFavorites(false)}
               className="text-[10px] text-text-dim hover:text-text-primary"
-              style={{ fontFamily: 'var(--font-mono)' }}>✕ 清除</button>
+              style={{ fontFamily: 'var(--font-mono)' }}>{t('status.clearFilter')}</button>
           </div>
         )}
 
         {/* ── 发现 tab: curated content ──────────────────────── */}
         {activeTab === 'discover' && !query && !showFavorites && (
           <>
+            {/* Preference tags bar */}
+            <PreferenceBar tags={preferenceTags} onReset={onResetPreferences} />
+
             {/* Scene packs */}
             <div className="mb-5 flex flex-col gap-3">
               <div className="flex items-center gap-2">
@@ -593,17 +591,17 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
             </div>
 
             {/* Empty discover state */}
-            {recentRecipes.length === 0 && suggestedRecipes.length === 0 && (
+            {recentRecipes.length === 0 && (
               <div className="mb-5 flex flex-col items-center justify-center py-12 rounded-lg"
                 style={{ background: 'rgba(0, 229, 255, 0.02)', border: '1px solid rgba(0, 229, 255, 0.04)' }}>
                 <Sparkles size={24} strokeWidth={1} className="text-text-dim mb-3 opacity-30" />
-                <p className="text-[13px] text-text-muted" style={{ fontFamily: 'var(--font-display)' }}>浏览菜谱后这里会出现个性化推荐</p>
-                <p className="text-[11px] text-text-dim mt-1" style={{ fontFamily: 'var(--font-body)' }}>去浏览 tab 探索菜谱吧</p>
+                <p className="text-[13px] text-text-muted" style={{ fontFamily: 'var(--font-display)' }}>{t('home.emptyDiscover')}</p>
+                <p className="text-[11px] text-text-dim mt-1" style={{ fontFamily: 'var(--font-body)' }}>{t('home.emptyDiscoverHint')}</p>
               </div>
             )}
 
-            {/* Merged: 为你推荐 (recent + flavor similar + suggested) */}
-            {(recentRecipes.length > 0 || suggestedRecipes.length > 0) && (
+            {/* Merged: 为你推荐 (scored by preference engine + exploration) */}
+            {recentRecipes.length > 0 && (
               <div className="mb-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Sparkles size={11} strokeWidth={1.5} className="text-amber-500" />
@@ -613,27 +611,51 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {(() => {
-                    const seen = new Set<string>()
-                    const items: { recipe: typeof RECIPES[0]; label: string; color: string }[] = []
-                    for (const r of recentRecipes.slice(0, 2)) {
-                      if (seen.has(r.id)) continue; seen.add(r.id)
-                      items.push({ recipe: r, label: lang === 'en' ? 'Recent' : '最近', color: 'rgba(0,229,255,0.04)' })
+                    const seen = new Set(recentIds)
+                    // All recipes sorted by score, excluding viewed
+                    const scored = RECIPES
+                      .filter((r) => !seen.has(r.id))
+                      .map((r) => ({ recipe: r, score: recipeScores.get(r.id) ?? 0.5 }))
+                      .sort((a, b) => b.score - a.score)
+
+                    // High-score pool and exploration pool
+                    const highScore = scored.filter((s) => s.score >= 0.5)
+                    const explore = scored.filter((s) => s.score < 0.5)
+
+                    // Shuffle exploration pool
+                    for (let i = explore.length - 1; i > 0; i--) {
+                      const j = Math.floor(Math.random() * (i + 1));
+                      [explore[i], explore[j]] = [explore[j], explore[i]]
                     }
-                    for (const { recipe } of flavorSimilar.slice(0, 2)) {
-                      if (seen.has(recipe.id)) continue; seen.add(recipe.id)
-                      items.push({ recipe, label: lang === 'en' ? 'Similar' : '相似', color: 'rgba(0,229,255,0.06)' })
+
+                    // Build: 3 high-score + 2 exploration
+                    const items: { recipe: typeof RECIPES[0]; label: string }[] = []
+                    highScore.slice(0, 3).forEach((s) => items.push({ recipe: s.recipe, label: '' }))
+                    explore.slice(0, 2).forEach((s) => items.push({
+                      recipe: s.recipe,
+                      label: t('pref.explore'),
+                    }))
+
+                    // Fill remaining with high-score if exploration pool insufficient
+                    if (items.length < 5) {
+                      const used = new Set(items.map((i) => i.recipe.id))
+                      for (const s of scored) {
+                        if (items.length >= 5) break
+                        if (!used.has(s.recipe.id)) {
+                          items.push({ recipe: s.recipe, label: '' })
+                        }
+                      }
                     }
-                    for (const r of suggestedRecipes) {
-                      if (seen.has(r.id)) continue; seen.add(r.id)
-                      items.push({ recipe: r, label: lang === 'en' ? 'For You' : '推荐', color: 'rgba(255,159,10,0.06)' })
-                    }
-                    return items.slice(0, 5).map(({ recipe, label, color }) => (
+
+                    return items.slice(0, 5).map(({ recipe, label }) => (
                       <button key={recipe.id} onClick={() => handleSelect(recipe)}
                         className="text-left px-3 py-2 rounded-md transition-all duration-200 hover:bg-charcoal-800/50"
-                        style={{ background: '#121620', border: `1px solid ${color}` }}>
+                        style={{ background: '#121620', border: `1px solid ${label ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0, 229, 255, 0.04)'}` }}>
                         <span className="text-[12px] text-text-primary block"
                           style={{ fontFamily: 'var(--font-display)', fontWeight: 600 }}>{recipe.emoji} {lang === 'en' ? recipe.nameEn : recipe.nameZh}</span>
-                        <span className="text-[9px] text-text-dim" style={{ fontFamily: 'var(--font-body)' }}>{label}</span>
+                        {label && (
+                          <span className="text-[9px]" style={{ fontFamily: 'var(--font-body)', color: '#10B981' }}>{label}</span>
+                        )}
                       </button>
                     ))
                   })()}
@@ -644,29 +666,45 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
           </>
         )}
 
+        {/* ── Journal tab ──────────────────────────────────── */}
+        {activeTab === 'journal' && !query && !showFavorites && (
+          <CookJournal />
+        )}
+
         {/* ── Browse / filtered view ──────────────────────────── */}
         {(activeTab === 'browse' || query || showFavorites) && (
           <>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[10px] tracking-[0.15em] uppercase text-text-dim"
                 style={{ fontFamily: 'var(--font-mono)' }}>
-                {showFavorites ? '❤️ 我的收藏' : query ? '搜索结果' : activeTab === 'browse' && browseSub !== 'all' ? t(`tab.${browseSub}`) : t('home.browseAll')}
+                {showFavorites ? t('status.myFav') : query ? t('search.results') : activeTab === 'browse' && browseSub !== 'all' ? t(`tab.${browseSub}`) : t('home.browseAll')}
               </span>
               <span className="text-[10px] text-text-dim" style={{ fontFamily: 'var(--font-mono)' }}>({filtered.length})</span>
+              <div className="flex-1" />
+              <button onClick={() => setSortMode((m) => m === 'preference' ? 'alphabetical' : 'preference')}
+                className="text-[9px] tracking-[0.06em] px-2 py-0.5 rounded transition-colors duration-200"
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  color: sortMode === 'preference' ? '#00E5FF' : '#5A6272',
+                  background: sortMode === 'preference' ? 'rgba(0, 229, 255, 0.06)' : 'transparent',
+                  border: sortMode === 'preference' ? '1px solid rgba(0, 229, 255, 0.15)' : '1px solid transparent',
+                }}>
+                ▸ {sortMode === 'preference' ? t('pref.sortPreference') : t('pref.sortAlpha')}
+              </button>
             </div>
 
             {filtered.length === 0 ? (
               showFavorites ? (
                 <div className="flex flex-col items-center justify-center py-20 text-text-dim">
                   <Heart size={32} strokeWidth={1} className="mb-3 opacity-30" />
-                  <p className="text-[14px]" style={{ fontFamily: 'var(--font-display)' }}>还没有收藏任何菜谱</p>
-                  <p className="text-[11px] mt-1" style={{ fontFamily: 'var(--font-body)' }}>点进菜谱详情，点击右上角 ♡ 收藏</p>
+                  <p className="text-[14px]" style={{ fontFamily: 'var(--font-display)' }}>{t('status.emptyFav')}</p>
+                  <p className="text-[11px] mt-1" style={{ fontFamily: 'var(--font-body)' }}>{t('status.emptyFavHint')}</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-20 text-text-dim">
                   <Search size={32} strokeWidth={1} className="mb-3 opacity-30" />
-                  <p className="text-[14px]" style={{ fontFamily: 'var(--font-display)' }}>没有找到匹配的菜谱</p>
-                  <p className="text-[11px] mt-1" style={{ fontFamily: 'var(--font-body)' }}>试试其他关键词或分类</p>
+                  <p className="text-[14px]" style={{ fontFamily: 'var(--font-display)' }}>{t('search.noResults')}</p>
+                  <p className="text-[11px] mt-1" style={{ fontFamily: 'var(--font-body)' }}>{t('search.tryOther')}</p>
                 </div>
               )
             ) : (
@@ -675,7 +713,8 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
                   <RecipeCard key={recipe.id} recipe={recipe} inventory={inventory} lang={lang}
                     onClick={() => handleSelect(recipe)} onQuickAddMissing={onQuickAddMissing}
                     onFavorite={() => onToggleRecipeFavorite(recipe.id)}
-                    isFavorited={favoriteIds.has(recipe.id)} />
+                    isFavorited={favoriteIds.has(recipe.id)}
+                    matchScore={recipeScores.get(recipe.id)} />
                 ))}
               </div>
             )}

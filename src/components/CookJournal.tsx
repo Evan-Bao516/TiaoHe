@@ -10,7 +10,7 @@ interface CookJournalProps {
 }
 
 export default function CookJournal({ onEntryTap }: CookJournalProps) {
-  const { t, lang } = useLang()
+  const { t } = useLang()
   const journal = useCookJournal()
   const { entries, monthlyStats, deleteEntry, filter, setFilter, allTags } = journal
 
