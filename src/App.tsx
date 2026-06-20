@@ -452,7 +452,7 @@ export default function App() {
             journal.addEntry({
               recipeId: journalFormRecipe.id,
               date: Date.now(),
-              rating: 0,
+              rating: 5,
               notes: '',
               actualTime: parseInt(journalFormRecipe.prepTime, 10) || 0,
               customTags: [],

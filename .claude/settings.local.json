@@ -67,7 +67,8 @@
       "Bash(sed -i '' 's/import { Plus, ChevronRight }/import { ChevronRight }/' src/components/MealPlanner.tsx)",
       "Bash(sed -i '' \"s/import type { MealPlan, Recipe } from '..\\\\/data\\\\/types'/import type { MealPlan } from '..\\\\/data\\\\/types'/\" src/components/MealPlanner.tsx)",
       "Bash(sed -i '' 's/import { ArrowLeft, Plus, X, Search }/import { ArrowLeft, X, Search }/' src/components/PlanDetail.tsx)",
-      "Bash(grep -n \"TABS.map\\\\|t\\(\\\\`tab\" src/components/RecipeList.tsx)"
+      "Bash(grep -n \"TABS.map\\\\|t\\(\\\\`tab\" src/components/RecipeList.tsx)",
+      "Bash(awk '{print $5, $NF}')"
     ]
   }
 }
