@@ -95,3 +95,16 @@ export interface PreferenceProfile {
   totalInteractions: number
   lastUpdated: number
 }
+
+/** Cooking journal entry */
+export interface CookEntry {
+  id: string
+  recipeId: string
+  date: number              // Unix ms timestamp
+  rating: number            // 1-5
+  notes: string
+  photo?: string            // Base64 data URL
+  actualTime: number        // minutes
+  customTags: string[]
+  completionRatio: number   // 0-1
+}
