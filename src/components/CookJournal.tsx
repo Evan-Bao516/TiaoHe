@@ -3,7 +3,9 @@ import { BookOpen, Filter, X, Trash2, CheckSquare, Square, Star, Clock } from 'l
 import type { CookEntry } from '../data/types'
 import { RECIPES } from '../data/recipes'
 import { useCookJournal } from '../hooks/useCookJournal'
+import { useConfirm } from '../hooks/useConfirm'
 import CookEntryCard from './CookEntryCard'
+import ConfirmDialog from './ConfirmDialog'
 import { useLang } from '../i18n/context'
 
 interface CookJournalProps {
@@ -13,6 +15,7 @@ interface CookJournalProps {
 export default function CookJournal(_props: CookJournalProps) {
   const { t, lang } = useLang()
   const journal = useCookJournal()
+  const confirm = useConfirm()
   const { entries, monthlyStats, deleteEntry, filter, setFilter, allTags } = journal
   const [deleteMode, setDeleteMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -48,12 +51,13 @@ export default function CookJournal(_props: CookJournalProps) {
     }
   }
 
-  const handleBatchDelete = () => {
+  const handleBatchDelete = async () => {
     if (selectedIds.size === 0) return
     const msg = lang === 'en'
       ? `Delete ${selectedIds.size} entry(s)?`
       : `确定删除选中的 ${selectedIds.size} 条记录？`
-    if (!confirm(msg)) return
+    const ok = await confirm.confirm(msg)
+    if (!ok) return
     for (const id of selectedIds) deleteEntry(id)
     setSelectedIds(new Set())
     setDeleteMode(false)
@@ -142,7 +146,7 @@ export default function CookJournal(_props: CookJournalProps) {
           </div>
 
           {/* Delete */}
-          <button onClick={() => { if (confirm(t('journal.deleteConfirm'))) { deleteEntry(detailEntry.id); setDetailEntry(null) } }}
+          <button onClick={async () => { const ok = await confirm.confirm(t('journal.deleteConfirm')); if (ok) { deleteEntry(detailEntry.id); setDetailEntry(null) } }}
             className="w-full py-2.5 rounded text-[11px] hover:brightness-110"
             style={{ fontFamily: 'var(--font-mono)', color: '#FF2E93', background: 'rgba(255,46,147,0.06)', border: '1px solid rgba(255,46,147,0.15)' }}>
             {t('journal.delete')}
@@ -254,7 +258,7 @@ export default function CookJournal(_props: CookJournalProps) {
                   )}
                   <div className="flex-1">
                     <CookEntryCard entry={entry}
-                      onDelete={(id) => { if (confirm(t('journal.deleteConfirm'))) deleteEntry(id) }}
+                      onDelete={async (id) => { const ok = await confirm.confirm(t('journal.deleteConfirm')); if (ok) deleteEntry(id) }}
                       onTap={(e) => deleteMode ? toggleSelect(e.id) : setDetailEntry(e)} />
                   </div>
                 </div>
@@ -263,6 +267,10 @@ export default function CookJournal(_props: CookJournalProps) {
           </div>
         )}
       </div>
+
+      {confirm.dialogOpen && (
+        <ConfirmDialog message={confirm.dialogMessage} onConfirm={confirm.handleConfirm} onCancel={confirm.handleCancel} />
+      )}
     </div>
   )
 }

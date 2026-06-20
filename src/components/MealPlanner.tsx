@@ -3,7 +3,9 @@ import { ChevronRight, Minus, Plus, Trash2, CheckSquare, Square } from 'lucide-r
 import type { MealPlan, MealDay } from '../data/types'
 import { RECIPES } from '../data/recipes'
 import { useMealPlanner } from '../hooks/useMealPlanner'
+import { useConfirm } from '../hooks/useConfirm'
 import PlanDetail from './PlanDetail'
+import ConfirmDialog from './ConfirmDialog'
 import { useLang } from '../i18n/context'
 
 interface MealPlannerProps {
@@ -28,6 +30,7 @@ function getNextDefaultName(plans: MealPlan[], lang: 'zh' | 'en'): string {
 
 export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
   const { t, lang } = useLang()
+  const confirm = useConfirm()
   const { plans, createPlan, deletePlan, updatePlan } = useMealPlanner()
   const [selectedPlan, setSelectedPlan] = useState<MealPlan | null>(null)
   const [showNew, setShowNew] = useState(false)
@@ -97,10 +100,11 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
     }
   }
 
-  const handleBatchDelete = () => {
+  const handleBatchDelete = async () => {
     if (selectedIds.size === 0) return
     const msg = t('planner.deleteSelected').replace('{n}', String(selectedIds.size))
-    if (!confirm(msg)) return
+    const ok = await confirm.confirm(msg)
+    if (!ok) return
     for (const id of selectedIds) deletePlan(id)
     setSelectedIds(new Set())
     setDeleteMode(false)
@@ -113,7 +117,7 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
         plan={current}
         onUpdate={(patch) => updatePlan(selectedPlan.id, patch)}
         onBack={() => setSelectedPlan(null)}
-        onDelete={() => { if (confirm(t('planner.deleteConfirm'))) { deletePlan(selectedPlan.id); setSelectedPlan(null) } }}
+        onDelete={async () => { const ok = await confirm.confirm(t('planner.deleteConfirm')); if (ok) { deletePlan(selectedPlan.id); setSelectedPlan(null) } }}
         onGenerateList={() => handleGenerateList(current)}
       />
     )
@@ -339,6 +343,10 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {confirm.dialogOpen && (
+        <ConfirmDialog message={confirm.dialogMessage} onConfirm={confirm.handleConfirm} onCancel={confirm.handleCancel} />
       )}
     </div>
   )

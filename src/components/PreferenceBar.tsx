@@ -1,5 +1,7 @@
 import { X } from 'lucide-react'
 import { useLang } from '../i18n/context'
+import { useConfirm } from '../hooks/useConfirm'
+import ConfirmDialog from './ConfirmDialog'
 
 interface PreferenceBarProps {
   tags: string[]
@@ -8,8 +10,9 @@ interface PreferenceBarProps {
 
 export default function PreferenceBar({ tags, onReset }: PreferenceBarProps) {
   const { t } = useLang()
+  const confirm = useConfirm()
 
-  if (tags.length === 0) return null // hidden during cold start or when no tags
+  if (tags.length === 0) return null
 
   return (
     <div className="px-4 pb-3">
@@ -20,18 +23,13 @@ export default function PreferenceBar({ tags, onReset }: PreferenceBarProps) {
           border: '1px solid rgba(0, 229, 255, 0.08)',
         }}
       >
-        {/* Icon */}
         <span className="text-[13px] flex-shrink-0">🧬</span>
-
-        {/* Label */}
         <span
           className="text-[10px] tracking-[0.08em] uppercase text-text-dim flex-shrink-0"
           style={{ fontFamily: 'var(--font-mono)' }}
         >
           {t('pref.yourTaste')}
         </span>
-
-        {/* Tags */}
         {tags.map((tag, i) => (
           <span
             key={i}
@@ -46,15 +44,12 @@ export default function PreferenceBar({ tags, onReset }: PreferenceBarProps) {
             {tag}
           </span>
         ))}
-
-        {/* Spacer */}
         <div className="flex-1" />
-
-        {/* Reset button */}
         <button
-          onClick={(e) => {
+          onClick={async (e) => {
             e.stopPropagation()
-            if (confirm(t('pref.resetConfirm'))) onReset()
+            const ok = await confirm.confirm(t('pref.resetConfirm'))
+            if (ok) onReset()
           }}
           className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] tracking-[0.06em] transition-colors duration-200 hover:text-[#FF2E93]"
           style={{
@@ -66,6 +61,10 @@ export default function PreferenceBar({ tags, onReset }: PreferenceBarProps) {
           {t('pref.reset')}
         </button>
       </div>
+
+      {confirm.dialogOpen && (
+        <ConfirmDialog message={confirm.dialogMessage} onConfirm={confirm.handleConfirm} onCancel={confirm.handleCancel} />
+      )}
     </div>
   )
 }
