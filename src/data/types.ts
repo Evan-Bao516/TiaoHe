@@ -108,3 +108,24 @@ export interface CookEntry {
   customTags: string[]
   completionRatio: number   // 0-1
 }
+
+/** Meal Planner */
+
+export interface MealSlot {
+  id: string
+  name: string
+  recipeId: string | null
+}
+
+export interface MealDay {
+  id: string
+  label: string
+  slots: MealSlot[]
+}
+
+export interface MealPlan {
+  id: string
+  name: string
+  createdAt: number
+  days: MealDay[]
+}

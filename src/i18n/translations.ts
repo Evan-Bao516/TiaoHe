@@ -252,4 +252,21 @@ export const T: Record<string, Record<Locale, string>> = {
   'rsearch.addToInventory': { zh: '加入库存', en: 'Add to Fridge' },
   'rsearch.empty':          { zh: '输入食材开始搜索', en: 'Enter ingredients to start searching' },
   'rsearch.noMatch':        { zh: '没有菜谱匹配这些食材', en: 'No recipes match these ingredients' },
+
+  /* Meal Planner */
+  'tab.planner':            { zh: '计划', en: 'Plans' },
+  'planner.newPlan':        { zh: '+ 新建', en: '+ New' },
+  'planner.empty':          { zh: '还没有餐食计划', en: 'No meal plans yet' },
+  'planner.emptyHint':      { zh: '创建一个计划来安排本周菜单', en: 'Create a plan to organize your meals' },
+  'planner.presetWeek':     { zh: '一周备餐', en: 'Weekly Plan' },
+  'planner.preset3Day':     { zh: '三日精简', en: '3-Day Plan' },
+  'planner.presetBlank':    { zh: '空白开始', en: 'From Scratch' },
+  'planner.delete':         { zh: '删除', en: 'Delete' },
+  'planner.deleteConfirm':  { zh: '确定删除这个计划？', en: 'Delete this plan?' },
+  'planner.addDay':         { zh: '+ 添加天', en: '+ Add Day' },
+  'planner.addSlot':        { zh: '+ 添加餐次', en: '+ Add Meal' },
+  'planner.addRecipe':      { zh: '+ 添加菜谱', en: '+ Add Recipe' },
+  'planner.generateList':   { zh: '生成采购清单', en: 'Generate Shopping List' },
+  'planner.emptySlot':      { zh: '点选菜谱', en: 'Pick Recipe' },
+  'planner.listGenerated':  { zh: '已生成采购清单', en: 'Shopping list generated' },
 }
