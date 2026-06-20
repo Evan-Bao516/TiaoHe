@@ -11,6 +11,8 @@ interface RecipeCardProps {
   onQuickAddMissing: (recipe: Recipe) => void
   onFavorite?: () => void
   isFavorited?: boolean
+  matchScore?: number
+  matchBadge?: { type: 'perfect' | 'near' | 'partial'; missingCount: number; substitutableCount: number }
 }
 
 const CATEGORY_META: Record<string, { icon: typeof ChefHat; color: string }> = {
@@ -32,7 +34,7 @@ function flavorTags(fp: Recipe['flavorProfile'], t: (k: string) => string): stri
   return tags.slice(0, 3)
 }
 
-export default function RecipeCard({ recipe, inventory, lang, onClick, onQuickAddMissing, onFavorite, isFavorited }: RecipeCardProps) {
+export default function RecipeCard({ recipe, inventory, lang, onClick, onQuickAddMissing, onFavorite, isFavorited, matchScore, matchBadge }: RecipeCardProps) {
   const meta = CATEGORY_META[recipe.category]
   const Icon = meta.icon
   const { t } = useLang()
@@ -165,6 +167,36 @@ export default function RecipeCard({ recipe, inventory, lang, onClick, onQuickAd
         </div>
       </div>
 
+      {/* Match score indicator */}
+      {matchScore !== undefined && matchScore > 0.5 && (
+        <div
+          className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full flex-shrink-0"
+          style={{
+            background: matchScore > 0.8 ? '#10B981' : 'rgba(0, 229, 255, 0.2)',
+            boxShadow: matchScore > 0.8 ? '0 0 4px rgba(16, 185, 129, 0.4)' : 'none',
+          }}
+        />
+      )}
+
+      {/* Reverse search match badge */}
+      {matchBadge && (
+        <div
+          className="absolute top-2 left-2 px-2 py-0.5 rounded text-[9px] font-medium flex items-center gap-1"
+          style={{
+            fontFamily: 'var(--font-mono)',
+            color: matchBadge.type === 'perfect' ? '#10B981' : matchBadge.type === 'near' ? '#FF9F0A' : '#5A6272',
+            background: matchBadge.type === 'perfect' ? 'rgba(16, 185, 129, 0.12)' : matchBadge.type === 'near' ? 'rgba(255, 159, 10, 0.1)' : 'rgba(90, 98, 114, 0.08)',
+            border: matchBadge.type === 'perfect' ? '1px solid rgba(16, 185, 129, 0.3)' : matchBadge.type === 'near' ? '1px solid rgba(255, 159, 10, 0.25)' : '1px solid rgba(90, 98, 114, 0.12)',
+          }}>
+          {matchBadge.type === 'perfect'
+            ? (l === 'en' ? 'Perfect' : '全齐')
+            : matchBadge.type === 'near'
+              ? `${l === 'en' ? 'Miss' : '缺'} ${matchBadge.missingCount}`
+              : `${matchBadge.missingCount}+ ${l === 'en' ? 'missing' : '缺'}`
+          }
+        </div>
+      )}
+
       {/* Long-press preview popup */}
       {showPreview && (
         <div className="absolute inset-0 z-10 flex items-center justify-center animate-in rounded-lg"
@@ -175,8 +207,8 @@ export default function RecipeCard({ recipe, inventory, lang, onClick, onQuickAd
             <div className="flex items-center justify-center gap-4 mt-3 text-[11px] text-text-muted"
               style={{ fontFamily: 'var(--font-mono)' }}>
               <span>⏱ {recipe.prepTime}</span>
-              <span>📋 {recipe.steps.length} {l==='en' ? 'steps' : '步'}</span>
-              <span>🛒 {totalIngredients} {l==='en' ? 'items' : '种食材'}</span>
+              <span>📋 {recipe.steps.length} {t('misc.steps')}</span>
+              <span>🛒 {totalIngredients} {t('misc.items')}</span>
             </div>
           </div>
         </div>
