@@ -235,4 +235,8 @@ export const T: Record<string, Record<Locale, string>> = {
   'entry.submit':           { zh: '保存记录', en: 'Save Entry' },
   'entry.cancel':           { zh: '跳过', en: 'Skip' },
   'entry.tagHint':          { zh: '输入自定义标签，回车添加', en: 'Type tag, press Enter to add' },
+  'entry.notesPlaceholder': { zh: '做得怎么样？有什么调整？', en: 'How did it go? Any tweaks?' },
+  'entry.tagPlaceholder':   { zh: '例如：宴客、减脂、便当', en: 'e.g. dinner party, meal prep' },
+  'entry.changePhoto':      { zh: '更换照片', en: 'Change Photo' },
+  'entry.photoSizeLimit':   { zh: '照片大小不能超过 5MB', en: 'Photo size must be under 5MB' },
 }

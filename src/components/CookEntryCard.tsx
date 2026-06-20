@@ -13,6 +13,11 @@ function formatDate(ts: number, t: (k: string) => string): string {
   const now = new Date()
   const date = new Date(ts)
   const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 3600 * 24))
+  if (diffDays < 0) {
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    return `${month}/${day}`
+  }
   if (diffDays === 0) return t('journal.today')
   if (diffDays === 1) return t('journal.yesterday')
   const month = date.getMonth() + 1

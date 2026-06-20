@@ -4,6 +4,7 @@ import type { Recipe, Category } from './data/types'
 import { RECIPES } from './data/recipes'
 import { useStoredState } from './hooks/useStoredState'
 import { usePreferenceEngine } from './hooks/usePreferenceEngine'
+import { useCookJournal } from './hooks/useCookJournal'
 import { useToast } from './components/ToastProvider'
 import { useLang } from './i18n/context'
 import { haptic } from './utils/haptic'
@@ -35,6 +36,7 @@ export default function App() {
   const { toast } = useToast()
   const { lang, t } = useLang()
   const engine = usePreferenceEngine()
+  const journal = useCookJournal()
   const recipeScores = useMemo(
     () => engine.scoreAll(RECIPES),
     [engine.scoreAll],
@@ -172,10 +174,14 @@ export default function App() {
   const handleClearCart = useCallback(() => { setCartItems({}); toast(t('toast.clearedCart')) }, [toast, t])
 
   const handleFocusComplete = useCallback((completionRatio: number) => {
-    if (completionRatio > 0.5 && selectedRecipe) {
-      engine.record(selectedRecipe, 'cook')
+    if (!selectedRecipe) return
+    if (completionRatio > 0.5) {
+      // Form will record with rating/tags — don't double-record here
       setJournalFormRecipe(selectedRecipe)
       setJournalFormRatio(completionRatio)
+    } else {
+      engine.record(selectedRecipe, 'cook')
+      setJournalFormRecipe(null) // don't show form
     }
   }, [engine, selectedRecipe])
 
@@ -376,7 +382,7 @@ export default function App() {
         <CookEntryForm
           recipe={journalFormRecipe}
           completionRatio={journalFormRatio}
-          existingTags={[]}
+          existingTags={journal.allTags}
           onSubmit={(data) => {
             engine.record(journalFormRecipe, 'cook', { rating: data.rating, tags: data.customTags })
             setJournalFormRecipe(null)

@@ -104,6 +104,11 @@ export function usePreferenceEngine() {
         }
       }
 
+      // Tag bonus: each custom tag slightly reinforces preferences
+      if (meta?.tags && meta.tags.length > 0) {
+        weight += 0.1 * meta.tags.length
+      }
+
       // 2. Compute alpha (signed)
       const alpha = weight * LEARNING_RATE
 

@@ -14,7 +14,18 @@ interface CookEntryFormProps {
 export default function CookEntryForm({ recipe, completionRatio, existingTags, onSubmit, onCancel }: CookEntryFormProps) {
   const { t, lang } = useLang()
   const [rating, setRating] = useState(0)
-  const [actualTime, setActualTime] = useState(parseInt(recipe.prepTime, 10) || 0)
+
+  function parsePrepTimeMinutes(duration: string): number {
+    const hourMatch = duration.match(/(\d+)\s*h/)
+    const minMatch = duration.match(/(\d+)\s*min/)
+    let total = 0
+    if (hourMatch) total += parseInt(hourMatch[1], 10) * 60
+    if (minMatch) total += parseInt(minMatch[1], 10)
+    if (total === 0) total = parseInt(duration, 10) || 0
+    return total
+  }
+
+  const [actualTime, setActualTime] = useState(parsePrepTimeMinutes(recipe.prepTime))
   const [notes, setNotes] = useState('')
   const [customTags, setCustomTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
@@ -27,6 +38,10 @@ export default function CookEntryForm({ recipe, completionRatio, existingTags, o
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (!file) return
+      if (file.size > 5 * 1024 * 1024) {
+        alert(t('entry.photoSizeLimit'))
+        return
+      }
       const reader = new FileReader()
       reader.onload = () => setPhoto(reader.result as string)
       reader.readAsDataURL(file)
@@ -123,7 +138,7 @@ export default function CookEntryForm({ recipe, completionRatio, existingTags, o
             <label className="text-[10px] tracking-[0.1em] uppercase text-text-dim mb-2 block"
               style={{ fontFamily: 'var(--font-mono)' }}>{t('entry.notes')}</label>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
-              placeholder={lang === 'en' ? 'How did it go? Any tweaks?' : '做得怎么样？有什么调整？'}
+              placeholder={t('entry.notesPlaceholder')}
               className="w-full bg-transparent text-[13px] text-text-primary px-3 py-2 rounded-md resize-none placeholder:text-text-dim"
               style={{ fontFamily: 'var(--font-body)', border: '1px solid rgba(0, 229, 255, 0.12)' }} />
           </div>
@@ -135,7 +150,7 @@ export default function CookEntryForm({ recipe, completionRatio, existingTags, o
             <div className="flex items-center gap-2 mb-2">
               <input value={tagInput} onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
-                placeholder={lang === 'en' ? 'e.g. dinner party, meal prep' : '例如：宴客、减脂、便当'}
+                placeholder={t('entry.tagPlaceholder')}
                 className="flex-1 bg-transparent text-[13px] text-text-primary px-3 py-1.5 rounded-md placeholder:text-text-dim"
                 style={{ fontFamily: 'var(--font-body)', border: '1px solid rgba(0, 229, 255, 0.12)' }} />
               <button onClick={handleAddTag}
@@ -169,10 +184,17 @@ export default function CookEntryForm({ recipe, completionRatio, existingTags, o
               className="flex items-center gap-2 px-3 py-2 rounded-md text-[11px] transition-colors hover:brightness-110"
               style={{ fontFamily: 'var(--font-mono)', color: '#8A94A6', border: '1px dashed rgba(138, 148, 166, 0.2)' }}>
               <Camera size={14} />
-              {photo ? (lang === 'en' ? 'Change Photo' : '更换照片') : t('entry.photo')}
+              {photo ? t('entry.changePhoto') : t('entry.photo')}
             </button>
             {photo && (
-              <img src={photo} alt="cook photo" className="mt-2 max-h-[120px] rounded-md" />
+              <div className="relative mt-2 inline-block">
+                <img src={photo} alt="cook photo" className="max-h-[120px] rounded-md" />
+                <button onClick={() => setPhoto(undefined)}
+                  className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(0,0,0,0.6)', color: '#F4F4F4' }}>
+                  <X size={14} strokeWidth={1.5} />
+                </button>
+              </div>
             )}
           </div>
         </div>
