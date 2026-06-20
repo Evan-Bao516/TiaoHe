@@ -8,7 +8,7 @@ interface ConfirmDialogProps {
 }
 
 export default function ConfirmDialog({ message, onConfirm, onCancel }: ConfirmDialogProps) {
-  const { lang } = useLang()
+  const { t } = useLang()
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center animate-in"
@@ -23,12 +23,12 @@ export default function ConfirmDialog({ message, onConfirm, onCancel }: ConfirmD
           <button onClick={onCancel}
             className="flex-1 py-2.5 rounded-md text-[11px] transition-colors"
             style={{ fontFamily: 'var(--font-display)', color: '#8A94A6', border: '1px solid rgba(138, 148, 166, 0.15)' }}>
-            {lang === 'en' ? 'Cancel' : '取消'}
+            {t('dialog.cancel')}
           </button>
           <button onClick={onConfirm}
             className="flex-1 py-2.5 rounded-md text-[11px] font-semibold transition-all hover:brightness-110"
             style={{ fontFamily: 'var(--font-display)', color: '#F4F4F4', background: 'rgba(255, 46, 147, 0.12)', border: '1px solid rgba(255, 46, 147, 0.25)' }}>
-            {lang === 'en' ? 'Confirm' : '确认'}
+            {t('dialog.confirm')}
           </button>
         </div>
       </div>

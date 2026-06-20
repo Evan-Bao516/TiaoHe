@@ -1,34 +1,29 @@
-import { useState, useCallback } from 'react'
-
-interface ConfirmState {
-  message: string
-  resolve: ((v: boolean) => void) | null
-}
+import { useState, useCallback, useRef } from 'react'
 
 export function useConfirm() {
-  const [state, setState] = useState<ConfirmState>({ message: '', resolve: null })
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogMessage, setDialogMessage] = useState('')
+  const resolveRef = useRef<((v: boolean) => void) | null>(null)
 
   const confirm = useCallback((message: string): Promise<boolean> => {
     return new Promise((resolve) => {
-      setState({ message, resolve })
+      resolveRef.current = resolve
+      setDialogMessage(message)
+      setDialogOpen(true)
     })
   }, [])
 
   const handleConfirm = useCallback(() => {
-    state.resolve?.(true)
-    setState({ message: '', resolve: null })
-  }, [state])
+    resolveRef.current?.(true)
+    resolveRef.current = null
+    setDialogOpen(false)
+  }, [])
 
   const handleCancel = useCallback(() => {
-    state.resolve?.(false)
-    setState({ message: '', resolve: null })
-  }, [state])
+    resolveRef.current?.(false)
+    resolveRef.current = null
+    setDialogOpen(false)
+  }, [])
 
-  return {
-    confirm,
-    dialogOpen: state.resolve !== null,
-    dialogMessage: state.message,
-    handleConfirm,
-    handleCancel,
-  }
+  return { confirm, dialogOpen, dialogMessage, handleConfirm, handleCancel }
 }

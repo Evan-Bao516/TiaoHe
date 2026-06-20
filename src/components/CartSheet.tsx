@@ -164,7 +164,7 @@ export default function CartSheet({ cartItems, onClose, onAdd, onRemove, onClear
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] text-ice-400 hover:bg-charcoal-800 transition-colors"
               style={{ fontFamily: 'var(--font-mono)', border: '1px solid rgba(0, 229, 255, 0.15)' }}>
               {copied ? <Check size={13} strokeWidth={2} /> : <Copy size={13} strokeWidth={1.5} />}
-              {copied ? 'Copied' : 'Copy'}
+              {copied ? t('cart.copied') : t('cart.copy')}
             </button>
           </>
         ) : (
@@ -353,12 +353,12 @@ export default function CartSheet({ cartItems, onClose, onAdd, onRemove, onClear
             <button onClick={onClear} disabled={mergedEntries.length === 0}
               className="flex-1 py-3 rounded-md text-[13px] tracking-wider uppercase font-medium transition-all duration-200 hover:bg-charcoal-800 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               style={{ fontFamily: 'var(--font-display)', color: '#5A6272', border: '1px solid rgba(138, 148, 166, 0.12)' }}>
-              <Trash2 size={14} strokeWidth={1.5} />Clear
+              <Trash2 size={14} strokeWidth={1.5} />{t('cart.clear')}
             </button>
             <button onClick={() => setShowingList(true)} disabled={mergedEntries.length === 0}
               className="flex-[2] py-3 rounded-md text-[13px] tracking-wider uppercase font-semibold transition-all duration-200 hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               style={{ fontFamily: 'var(--font-display)', color: '#F4F4F4', background: 'rgba(0, 229, 255, 0.12)', border: '1px solid rgba(0, 229, 255, 0.25)', boxShadow: '0 0 15px rgba(0, 229, 255, 0.08)' }}>
-              <Sparkles size={16} strokeWidth={1.5} />Generate List
+              <Sparkles size={16} strokeWidth={1.5} />{t('cart.generate')}
             </button>
           </div>
         </div>

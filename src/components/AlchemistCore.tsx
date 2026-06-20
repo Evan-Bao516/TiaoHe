@@ -107,7 +107,7 @@ export default function AlchemistCore({
         <div className="flex items-center gap-3 mb-4">
           <div style={{ width: 12, height: 1, background: '#10B981', opacity: 0.5 }} />
           <span className="text-[10px] tracking-[0.2em] uppercase text-text-dim" style={{ fontFamily: 'var(--font-mono)' }}>
-            Knowledge Base
+            {t('detail.theory')}
           </span>
         </div>
         <div className="flex flex-col items-center py-10"
@@ -138,7 +138,7 @@ export default function AlchemistCore({
       <div className="flex items-center gap-3 mb-4">
         <div style={{ width: 12, height: 1, background: '#00E5FF', opacity: 0.5 }} />
         <span className="text-[10px] tracking-[0.2em] uppercase text-text-dim" style={{ fontFamily: 'var(--font-mono)' }}>
-          Alchemist Core
+          {t('detail.alchemist')}
         </span>
       </div>
 
@@ -215,7 +215,7 @@ export default function AlchemistCore({
           {totalKcal}
         </span>
         <span className="text-[11px] tracking-[0.18em] uppercase mt-0.5" style={{ fontFamily: 'var(--font-body), sans-serif', fontWeight: 500, color: '#8A94A6' }}>
-          Total Kcal
+          {t('detail.totalKcal')}
         </span>
       </div>
 

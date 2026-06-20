@@ -182,7 +182,7 @@ export default function App() {
     if (!plan) {
       plan = {
         id: crypto.randomUUID(),
-        name: lang === 'en' ? 'Quick Plan' : '快速计划',
+        name: t('plan.quickPlan'),
         createdAt: Date.now(),
         days: [],
       }
@@ -193,17 +193,17 @@ export default function App() {
     if (!targetDay) {
       targetDay = {
         id: crypto.randomUUID(),
-        label: lang === 'en' ? 'Day 1' : '第1天',
+        label: t('plan.day1'),
         slots: [],
       }
     }
-    const newSlot = { id: crypto.randomUUID(), name: lang === 'en' ? 'Meal' : '餐次', recipeId }
+    const newSlot = { id: crypto.randomUUID(), name: t('plan.meal'), recipeId }
     const updatedDays = plan.days.length === 0
       ? [{ ...targetDay, slots: [newSlot] }]
       : plan.days.map((d) => d.id === targetDay.id ? { ...d, slots: [...d.slots, newSlot] } : d)
     planner.updatePlan(plan.id, { days: updatedDays })
-    toast(lang === 'en' ? 'Added to plan' : '已加入计划 📋')
-  }, [planner, lang, toast])
+    toast(t('plan.added'))
+  }, [planner, t, toast])
 
   const handleFocusComplete = useCallback((completionRatio: number) => {
     if (!selectedRecipe) return
@@ -327,7 +327,7 @@ export default function App() {
             <button onClick={() => handleAddToPlan(selectedRecipe.id)}
               className="text-[10px] px-2 py-0.5 rounded transition-colors hover:brightness-110"
               style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF', background: 'rgba(0,229,255,0.06)', border: '1px solid rgba(0,229,255,0.15)' }}>
-              + {lang === 'en' ? 'Plan' : '计划'}
+              + {t('plan.addToPlan')}
             </button>
           </div>
 
@@ -449,15 +449,6 @@ export default function App() {
             setJournalFormRecipe(null)
           }}
           onCancel={() => {
-            journal.addEntry({
-              recipeId: journalFormRecipe.id,
-              date: Date.now(),
-              rating: 5,
-              notes: '',
-              actualTime: parseInt(journalFormRecipe.prepTime, 10) || 0,
-              customTags: [],
-              completionRatio: journalFormRatio,
-            })
             engine.record(journalFormRecipe, 'cook')
             setJournalFormRecipe(null)
           }}

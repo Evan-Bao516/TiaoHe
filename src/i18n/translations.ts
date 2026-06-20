@@ -130,8 +130,10 @@ export const T: Record<string, Record<Locale, string>> = {
   'cart.ingredients':   { zh: '种食材', en: 'ingredients' },
   'cart.total':         { zh: '共', en: 'Total' },
   'cart.unit':          { zh: '件', en: 'items' },
-  'cart.clear':         { zh: 'Clear', en: 'Clear' },
-  'cart.generate':      { zh: 'Generate List', en: 'Generate List' },
+  'cart.clear':         { zh: '清空', en: 'Clear' },
+  'cart.generate':      { zh: '生成清单', en: 'Generate List' },
+  'cart.copied':        { zh: '已复制', en: 'Copied' },
+  'cart.copy':          { zh: '复制', en: 'Copy' },
   'cart.listTitle':     { zh: '采购清单', en: 'Shopping List' },
 
   /* Generated list */
@@ -295,4 +297,29 @@ export const T: Record<string, Record<Locale, string>> = {
   'planner.generateList':   { zh: '生成采购清单', en: 'Generate Shopping List' },
   'planner.emptySlot':      { zh: '点选菜谱', en: 'Pick Recipe' },
   'planner.listGenerated':  { zh: '已生成采购清单', en: 'Shopping list generated' },
+
+  /* Dialog */
+  'dialog.confirm':     { zh: '确认', en: 'Confirm' },
+  'dialog.cancel':      { zh: '取消', en: 'Cancel' },
+  'dialog.selectAll':   { zh: '全选', en: 'All' },
+  'dialog.deleteN':     { zh: '删除选中 ({n})', en: 'Delete ({n})' },
+
+  /* Journal */
+  'journal.rating':     { zh: '评分', en: 'Rating' },
+  'journal.time':       { zh: '用时', en: 'Time' },
+  'journal.completion': { zh: '完成度', en: 'Completion' },
+  'journal.detail':     { zh: '记录详情', en: 'Entry Detail' },
+
+  /* Plan */
+  'plan.quickPlan':     { zh: '快速计划', en: 'Quick Plan' },
+  'plan.day1':          { zh: '第1天', en: 'Day 1' },
+  'plan.meal':          { zh: '餐次', en: 'Meal' },
+  'plan.added':         { zh: '已加入计划', en: 'Added to plan' },
+  'plan.addToPlan':     { zh: '+ 计划', en: '+ Plan' },
+  'plan.newPlan':       { zh: '新建餐食计划', en: 'New Meal Plan' },
+  'plan.name':          { zh: '计划名称', en: 'Plan Name' },
+  'plan.days':          { zh: '天数', en: 'Days' },
+  'plan.mealsPerDay':   { zh: '每日餐次', en: 'Meals per Day' },
+  'plan.custom':        { zh: '自定义', en: 'Custom' },
+  'plan.create':        { zh: '创建计划', en: 'Create Plan' },
 }

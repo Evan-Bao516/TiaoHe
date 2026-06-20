@@ -73,7 +73,7 @@ export default function CookJournal(_props: CookJournalProps) {
             <X size={18} />
           </button>
           <span className="text-[14px] text-text-primary" style={{ fontFamily: 'var(--font-display)', fontWeight: 600 }}>
-            {lang === 'en' ? 'Entry Detail' : '记录详情'}
+            {t('journal.detail')}
           </span>
         </div>
         <div className="flex-1 overflow-y-auto px-4 pb-8">
@@ -100,13 +100,13 @@ export default function CookJournal(_props: CookJournalProps) {
                       style={{ color: n <= detailEntry.rating ? '#FF9F0A' : '#2A303C' }} />
                   ))}
                 </div>
-                <span className="text-[9px] text-text-dim" style={{ fontFamily: 'var(--font-mono)' }}>{t('journal.tab')}</span>
+                <span className="text-[9px] text-text-dim" style={{ fontFamily: 'var(--font-mono)' }}>{t('journal.rating')}</span>
               </div>
               <div className="text-center p-3 rounded" style={{ background: 'rgba(0,229,255,0.03)' }}>
                 <div className="text-[18px] text-text-primary mb-0.5" style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
                   <Clock size={14} className="inline mr-1" />{detailEntry.actualTime}min
                 </div>
-                <span className="text-[9px] text-text-dim" style={{ fontFamily: 'var(--font-mono)' }}>{t('journal.tab')}</span>
+                <span className="text-[9px] text-text-dim" style={{ fontFamily: 'var(--font-mono)' }}>{t('journal.time')}</span>
               </div>
             </div>
 
@@ -141,7 +141,7 @@ export default function CookJournal(_props: CookJournalProps) {
 
             {/* Completion */}
             <p className="text-[10px] text-text-dim" style={{ fontFamily: 'var(--font-mono)' }}>
-              {lang === 'en' ? 'Completion' : '完成度'}: {Math.round(detailEntry.completionRatio * 100)}%
+              {t('journal.completion')}: {Math.round(detailEntry.completionRatio * 100)}%
             </p>
           </div>
 
