@@ -11,7 +11,8 @@ interface MealPlannerProps {
   onAddToCart: (id: string) => void
 }
 
-const DEFAULT_SLOT_NAMES = ['早餐', '午餐', '晚餐']
+const DEFAULT_SLOT_NAMES_ZH = ['早餐', '午餐', '晚餐']
+const DEFAULT_SLOT_NAMES_EN = ['Breakfast', 'Lunch', 'Dinner']
 
 function makeId(): string { return crypto.randomUUID() }
 
@@ -47,7 +48,8 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
   const handleCreatePlan = () => {
     const days = parseInt(newDays, 10) || 7
     const meals = parseInt(newMealsPerDay, 10) || 2
-    const slotNames = DEFAULT_SLOT_NAMES.slice(0, meals)
+    const defaultNames = lang === 'en' ? DEFAULT_SLOT_NAMES_EN : DEFAULT_SLOT_NAMES_ZH
+    const slotNames = defaultNames.slice(0, meals)
     const extraSlots = meals - slotNames.length
 
     const planDays: MealDay[] = Array.from({ length: days }, (_, i) => ({
@@ -97,10 +99,8 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
 
   const handleBatchDelete = () => {
     if (selectedIds.size === 0) return
-    if (!confirm(lang === 'en'
-      ? `Delete ${selectedIds.size} plan(s)?`
-      : `确定删除选中的 ${selectedIds.size} 个计划？`
-    )) return
+    const msg = t('planner.deleteSelected').replace('{n}', String(selectedIds.size))
+    if (!confirm(msg)) return
     for (const id of selectedIds) deletePlan(id)
     setSelectedIds(new Set())
     setDeleteMode(false)
@@ -121,6 +121,7 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
 
   const daysNum = parseInt(newDays, 10) || 7
   const mealsNum = parseInt(newMealsPerDay, 10) || 2
+  const previewSlotNames = (lang === 'en' ? DEFAULT_SLOT_NAMES_EN : DEFAULT_SLOT_NAMES_ZH).slice(0, mealsNum)
 
   return (
     <div className="flex flex-col min-h-0">
@@ -308,13 +309,13 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
               </div>
               {/* Slot name preview */}
               <div className="flex gap-1 flex-wrap">
-                {DEFAULT_SLOT_NAMES.slice(0, mealsNum).map((name) => (
+                {previewSlotNames.map((name) => (
                   <span key={name} className="px-2 py-0.5 rounded text-[9px]"
                     style={{ fontFamily: 'var(--font-body)', color: '#8A94A6', background: 'rgba(0,229,255,0.04)', border: '1px solid rgba(0,229,255,0.08)' }}>
                     {name}
                   </span>
                 ))}
-                {mealsNum > DEFAULT_SLOT_NAMES.length && (
+                {mealsNum > (lang === 'en' ? DEFAULT_SLOT_NAMES_EN : DEFAULT_SLOT_NAMES_ZH).length && (
                   <span className="px-2 py-0.5 rounded text-[9px]"
                     style={{ fontFamily: 'var(--font-body)', color: '#5A6272', background: 'rgba(138,148,166,0.04)', border: '1px dashed rgba(138,148,166,0.15)' }}>
                     {lang === 'en' ? 'Custom' : '自定义'}

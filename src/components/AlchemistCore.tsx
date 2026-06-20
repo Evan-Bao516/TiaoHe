@@ -71,7 +71,7 @@ export default function AlchemistCore({
   totalKcal,
   ingredients,
 }: AlchemistCoreProps) {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   /* Build donut segments from macros */
   const SEGMENTS = MACRO_COLORS.map((m, i) => ({
     label: m.key,
@@ -190,7 +190,7 @@ export default function AlchemistCore({
             return (
               <text key={`lbl-${f.key}`} x={p.x} y={p.y} textAnchor={anchor} fill="#8A94A6" fontSize="12"
                 fontFamily="var(--font-body), sans-serif" fontWeight={500} dy={dy}>
-                {f.label}
+                {lang === 'en' ? f.en : f.label}
               </text>
             )
           })}

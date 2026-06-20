@@ -288,6 +288,7 @@ export const T: Record<string, Record<Locale, string>> = {
   'planner.presetBlank':    { zh: '空白开始', en: 'From Scratch' },
   'planner.delete':         { zh: '删除', en: 'Delete' },
   'planner.deleteConfirm':  { zh: '确定删除这个计划？', en: 'Delete this plan?' },
+  'planner.deleteSelected': { zh: '确定删除选中的{n}个计划？', en: 'Delete {n} selected plans?' },
   'planner.addDay':         { zh: '+ 添加天', en: '+ Add Day' },
   'planner.addSlot':        { zh: '+ 添加餐次', en: '+ Add Meal' },
   'planner.addRecipe':      { zh: '+ 添加菜谱', en: '+ Add Recipe' },

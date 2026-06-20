@@ -434,8 +434,9 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
         )}
       </div>
 
-      {/* ── Top-level tabs: 发现 / 浏览 ────────────────────────── */}
-      <div className="px-4 pb-2 flex gap-2">
+      {/* ── Top-level tabs ────────────────────────────────────── */}
+      <div className="px-4 pb-2 overflow-x-auto flex gap-1.5 scrollbar-none relative"
+        style={{ WebkitOverflowScrolling: 'touch' }}>
         {TABS.map((tab) => {
           const isActive = activeTab === tab.key
           const Icon = tab.icon
@@ -451,6 +452,9 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
             </button>
           )
         })}
+        {/* Fade indicator on right edge when scrollable */}
+        <div className="sticky right-0 w-8 flex-shrink-0 pointer-events-none"
+          style={{ background: 'linear-gradient(to right, transparent, #0A0E17)' }} />
       </div>
 
       {/* ── 浏览 sub-tabs ──────────────────────────────────────── */}
@@ -605,6 +609,21 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
           <>
             {/* Preference tags bar */}
             <PreferenceBar tags={preferenceTags} onReset={onResetPreferences} />
+
+            {/* Onboarding hint — first visit */}
+            {recentIds.length === 0 && (
+              <div className="mb-4 px-4 py-3 rounded-md animate-in"
+                style={{ background: 'rgba(0,229,255,0.04)', border: '1px solid rgba(0,229,255,0.1)' }}>
+                <p className="text-[12px] text-text-primary" style={{ fontFamily: 'var(--font-display)', fontWeight: 500 }}>
+                  {lang === 'en' ? '👋 Welcome to TiaoHe!' : '👋 欢迎来到调和！'}
+                </p>
+                <p className="text-[10px] text-text-dim mt-1" style={{ fontFamily: 'var(--font-body)' }}>
+                  {lang === 'en'
+                    ? 'Browse recipes, search by ingredients, plan meals, and track your cooking journey.'
+                    : '浏览菜谱、食材搜菜、制定餐食计划、记录烹饪日志。'}
+                </p>
+              </div>
+            )}
 
             {/* Scene packs */}
             <div className="mb-5 flex flex-col gap-3">

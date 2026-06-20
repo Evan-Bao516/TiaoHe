@@ -5,6 +5,7 @@ import { RECIPES } from './data/recipes'
 import { useStoredState } from './hooks/useStoredState'
 import { usePreferenceEngine } from './hooks/usePreferenceEngine'
 import { useCookJournal } from './hooks/useCookJournal'
+import { useMealPlanner } from './hooks/useMealPlanner'
 import { useToast } from './components/ToastProvider'
 import { useLang } from './i18n/context'
 import { haptic } from './utils/haptic'
@@ -37,6 +38,7 @@ export default function App() {
   const { lang, t } = useLang()
   const engine = usePreferenceEngine()
   const journal = useCookJournal()
+  const planner = useMealPlanner()
   const recipeScores = useMemo(
     () => engine.scoreAll(RECIPES),
     [engine.scoreAll],
@@ -173,6 +175,36 @@ export default function App() {
 
   const handleClearCart = useCallback(() => { setCartItems({}); toast(t('toast.clearedCart')) }, [toast, t])
 
+  const handleAddToPlan = useCallback((recipeId: string) => {
+    const plans = planner.plans
+    let plan = plans[plans.length - 1]
+    // Auto-create a plan if none exists
+    if (!plan) {
+      plan = {
+        id: crypto.randomUUID(),
+        name: lang === 'en' ? 'Quick Plan' : '快速计划',
+        createdAt: Date.now(),
+        days: [],
+      }
+      planner.createPlan(plan)
+    }
+    // Add recipe as new slot to last day, or create a day
+    let targetDay = plan.days[plan.days.length - 1]
+    if (!targetDay) {
+      targetDay = {
+        id: crypto.randomUUID(),
+        label: lang === 'en' ? 'Day 1' : '第1天',
+        slots: [],
+      }
+    }
+    const newSlot = { id: crypto.randomUUID(), name: lang === 'en' ? 'Meal' : '餐次', recipeId }
+    const updatedDays = plan.days.length === 0
+      ? [{ ...targetDay, slots: [newSlot] }]
+      : plan.days.map((d) => d.id === targetDay.id ? { ...d, slots: [...d.slots, newSlot] } : d)
+    planner.updatePlan(plan.id, { days: updatedDays })
+    toast(lang === 'en' ? 'Added to plan' : '已加入计划 📋')
+  }, [planner, lang, toast])
+
   const handleFocusComplete = useCallback((completionRatio: number) => {
     if (!selectedRecipe) return
     if (completionRatio > 0.5) {
@@ -290,6 +322,12 @@ export default function App() {
                 <span style={{ color: '#5A6272' }}>{selectedRecipe.tags.slice(0, 2).join(' · ')}</span>
               </>
             )}
+            <div className="flex-1" />
+            <button onClick={() => handleAddToPlan(selectedRecipe.id)}
+              className="text-[10px] px-2 py-0.5 rounded transition-colors hover:brightness-110"
+              style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF', background: 'rgba(0,229,255,0.06)', border: '1px solid rgba(0,229,255,0.15)' }}>
+              + {lang === 'en' ? 'Plan' : '计划'}
+            </button>
           </div>
 
           {/* Servings scaler */}

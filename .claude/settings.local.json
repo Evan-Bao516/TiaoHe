@@ -66,7 +66,8 @@
       "Bash(~/.claude/plugins/cache/claude-plugins-official/superpowers/6.0.2/skills/subagent-driven-development/scripts/review-package b0e40d9 *)",
       "Bash(sed -i '' 's/import { Plus, ChevronRight }/import { ChevronRight }/' src/components/MealPlanner.tsx)",
       "Bash(sed -i '' \"s/import type { MealPlan, Recipe } from '..\\\\/data\\\\/types'/import type { MealPlan } from '..\\\\/data\\\\/types'/\" src/components/MealPlanner.tsx)",
-      "Bash(sed -i '' 's/import { ArrowLeft, Plus, X, Search }/import { ArrowLeft, X, Search }/' src/components/PlanDetail.tsx)"
+      "Bash(sed -i '' 's/import { ArrowLeft, Plus, X, Search }/import { ArrowLeft, X, Search }/' src/components/PlanDetail.tsx)",
+      "Bash(grep -n \"TABS.map\\\\|t\\(\\\\`tab\" src/components/RecipeList.tsx)"
     ]
   }
 }

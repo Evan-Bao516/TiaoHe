@@ -13,6 +13,7 @@ interface ReverseSearchProps {
   onToggleRecipeFavorite: (id: string) => void
   favoriteIds: Set<string>
   onAddToInventory: (nameZh: string) => void
+  onAddToPlan?: (recipeId: string) => void
 }
 
 const QUICK_CHIPS = getTopIngredients(12)
