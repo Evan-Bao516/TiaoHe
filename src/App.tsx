@@ -405,10 +405,20 @@ export default function App() {
           completionRatio={journalFormRatio}
           existingTags={journal.allTags}
           onSubmit={(data) => {
+            journal.addEntry(data)
             engine.record(journalFormRecipe, 'cook', { rating: data.rating, tags: data.customTags })
             setJournalFormRecipe(null)
           }}
           onCancel={() => {
+            journal.addEntry({
+              recipeId: journalFormRecipe.id,
+              date: Date.now(),
+              rating: 0,
+              notes: '',
+              actualTime: parseInt(journalFormRecipe.prepTime, 10) || 0,
+              customTags: [],
+              completionRatio: journalFormRatio,
+            })
             engine.record(journalFormRecipe, 'cook')
             setJournalFormRecipe(null)
           }}
