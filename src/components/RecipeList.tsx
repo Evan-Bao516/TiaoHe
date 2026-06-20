@@ -8,6 +8,7 @@ import { useStoredState } from '../hooks/useStoredState'
 import { useLang } from '../i18n/context'
 import FridgeIcon from './FridgeIcon'
 import CookJournal from './CookJournal'
+import ReverseSearch from './ReverseSearch'
 
 interface RecipeListProps {
   cartCount: number
@@ -15,8 +16,8 @@ interface RecipeListProps {
   recentIds: string[]
   favoriteIds: Set<string>
   recipeScores: Map<string, number>
-  activeTab: 'discover' | 'browse' | 'journal'
-  onTabChange: (tab: 'discover' | 'browse' | 'journal') => void
+  activeTab: 'discover' | 'browse' | 'journal' | 'reverseSearch'
+  onTabChange: (tab: 'discover' | 'browse' | 'journal' | 'reverseSearch') => void
   drinkSub: 'all' | 'alcoholic' | 'nonalcoholic'
   onDrinkSubChange: (sub: 'all' | 'alcoholic' | 'nonalcoholic') => void
   browseSub: Category | 'all'
@@ -27,14 +28,16 @@ interface RecipeListProps {
   onOpenTimer: () => void
   onQuickAddMissing: (recipe: Recipe) => void
   onToggleRecipeFavorite: (id: string) => void
+  onAddToInventory: (nameZh: string) => void
   preferenceTags: string[]
   onResetPreferences: () => void
 }
 
-const TABS: { key: 'discover' | 'browse' | 'journal'; icon: typeof Flame }[] = [
+const TABS: { key: 'discover' | 'browse' | 'journal' | 'reverseSearch'; icon: typeof Flame }[] = [
   { key: 'discover', icon: Sparkles },
   { key: 'browse', icon: Grid3X3 },
   { key: 'journal', icon: BookOpen },
+  { key: 'reverseSearch', icon: Search },
 ]
 
 const BROWSE_SUBS: { key: Category | 'all'; icon: typeof Flame }[] = [
@@ -52,7 +55,7 @@ const SCENES: { key: string; color: string; filter: (r: Recipe) => boolean }[] =
   { key: 'drinks', color: '#FF2E93', filter: (r) => r.category === 'drink' },
 ]
 
-export default function RecipeList({ cartCount, inventory, recentIds, favoriteIds, recipeScores, activeTab, onTabChange, drinkSub, onDrinkSubChange, browseSub, onBrowseSubChange, onSelect, onOpenCart, onOpenInventory, onOpenTimer, onQuickAddMissing, onToggleRecipeFavorite, preferenceTags, onResetPreferences }: RecipeListProps) {
+export default function RecipeList({ cartCount, inventory, recentIds, favoriteIds, recipeScores, activeTab, onTabChange, drinkSub, onDrinkSubChange, browseSub, onBrowseSubChange, onSelect, onOpenCart, onOpenInventory, onOpenTimer, onQuickAddMissing, onToggleRecipeFavorite, onAddToInventory, preferenceTags, onResetPreferences }: RecipeListProps) {
   const [query, setQuery] = useState('')
   const [showMakeable, setShowMakeable] = useState(false)
   const [showFavorites, setShowFavorites] = useState(false)
@@ -672,6 +675,19 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
         {/* ── Journal tab ──────────────────────────────────── */}
         {activeTab === 'journal' && !query && !showFavorites && (
           <CookJournal />
+        )}
+
+        {/* ── Reverse Search tab ──────────────────────────── */}
+        {activeTab === 'reverseSearch' && !query && !showFavorites && (
+          <ReverseSearch
+            inventory={inventory}
+            preferenceScores={recipeScores}
+            onSelect={handleSelect}
+            onQuickAddMissing={onQuickAddMissing}
+            onToggleRecipeFavorite={onToggleRecipeFavorite}
+            favoriteIds={favoriteIds}
+            onAddToInventory={onAddToInventory}
+          />
         )}
 
         {/* ── Browse / filtered view ──────────────────────────── */}

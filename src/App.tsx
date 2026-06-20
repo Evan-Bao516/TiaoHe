@@ -27,7 +27,7 @@ export default function App() {
   const [expandedStep, setExpandedStep] = useState<number | null>(null)
   const [isInventoryOpen, setIsInventoryOpen] = useState(false)
   const [isTimerOpen, setIsTimerOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<'discover' | 'browse' | 'journal'>('discover')
+  const [activeTab, setActiveTab] = useState<'discover' | 'browse' | 'journal' | 'reverseSearch'>('discover')
   const [drinkSub, setDrinkSub] = useState<'all' | 'alcoholic' | 'nonalcoholic'>('all')
   const [browseSub, setBrowseSub] = useState<Category | 'all'>('all')
   const [servings, setServings] = useState(2)
@@ -233,6 +233,7 @@ export default function App() {
               setFavArr((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])
               haptic('medium')
             }}
+            onAddToInventory={handleToggleInventory}
             preferenceTags={preferenceTags}
             onResetPreferences={engine.reset}
           />
