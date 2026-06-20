@@ -35,6 +35,7 @@ interface RecipeListProps {
   onResetPreferences: () => void
   onGenerateMealPlanList: (plan: MealPlan) => void
   onAddToCart: (id: string) => void
+  onAddToPlan?: (recipeId: string) => void
 }
 
 const TABS: { key: 'discover' | 'browse' | 'journal' | 'reverseSearch' | 'planner' | 'nutrition'; icon: typeof Flame }[] = [
@@ -61,7 +62,7 @@ const SCENES: { key: string; color: string; filter: (r: Recipe) => boolean }[] =
   { key: 'drinks', color: '#FF2E93', filter: (r) => r.category === 'drink' },
 ]
 
-export default function RecipeList({ cartCount, inventory, recentIds, favoriteIds, recipeScores, activeTab, onTabChange, drinkSub, onDrinkSubChange, browseSub, onBrowseSubChange, onSelect, onOpenCart, onOpenInventory, onOpenTimer, onQuickAddMissing, onToggleRecipeFavorite, onAddToInventory, preferenceTags, onResetPreferences, onGenerateMealPlanList, onAddToCart }: RecipeListProps) {
+export default function RecipeList({ cartCount, inventory, recentIds, favoriteIds, recipeScores, activeTab, onTabChange, drinkSub, onDrinkSubChange, browseSub, onBrowseSubChange, onSelect, onOpenCart, onOpenInventory, onOpenTimer, onQuickAddMissing, onToggleRecipeFavorite, onAddToInventory, preferenceTags, onResetPreferences, onGenerateMealPlanList, onAddToCart, onAddToPlan }: RecipeListProps) {
   const [query, setQuery] = useState('')
   const [showMakeable, setShowMakeable] = useState(false)
   const [showFavorites, setShowFavorites] = useState(false)
@@ -712,6 +713,7 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
             onToggleRecipeFavorite={onToggleRecipeFavorite}
             favoriteIds={favoriteIds}
             onAddToInventory={onAddToInventory}
+            onAddToPlan={onAddToPlan}
           />
         )}
 

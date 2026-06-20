@@ -21,7 +21,7 @@ const ALL_NAMES = getAllIngredientNames()
 
 export default function ReverseSearch({
   inventory, preferenceScores, onSelect, onQuickAddMissing,
-  onToggleRecipeFavorite, favoriteIds, onAddToInventory,
+  onToggleRecipeFavorite, favoriteIds, onAddToInventory, onAddToPlan,
 }: ReverseSearchProps) {
   const { t, lang } = useLang()
   const [ingredients, setIngredients] = useState<string[]>([])
@@ -231,11 +231,20 @@ export default function ReverseSearch({
                         isFavorited={favoriteIds.has(r.recipe.id)}
                         matchBadge={{ type: 'near', missingCount: r.missingCount, substitutableCount: r.substitutableCount }} />
                       {!addedToFridge.has(r.recipe.id) && (
-                        <button onClick={(e) => { e.stopPropagation(); handleAddAllToInventory(r.recipe) }}
-                          className="absolute bottom-2 right-3 px-2 py-0.5 rounded text-[9px] transition-all hover:brightness-110"
-                          style={{ fontFamily: 'var(--font-mono)', color: '#10B981', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                          + {t('rsearch.addToInventory')}
-                        </button>
+                        <div className="absolute bottom-2 right-2 flex gap-1">
+                          {onAddToPlan && (
+                            <button onClick={(e) => { e.stopPropagation(); onAddToPlan(r.recipe.id) }}
+                              className="px-2 py-0.5 rounded text-[9px] transition-all hover:brightness-110"
+                              style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF', background: 'rgba(0, 229, 255, 0.06)', border: '1px solid rgba(0, 229, 255, 0.15)' }}>
+                              + {lang === 'en' ? 'Plan' : '计划'}
+                            </button>
+                          )}
+                          <button onClick={(e) => { e.stopPropagation(); handleAddAllToInventory(r.recipe) }}
+                            className="px-2 py-0.5 rounded text-[9px] transition-all hover:brightness-110"
+                            style={{ fontFamily: 'var(--font-mono)', color: '#10B981', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                            + {t('rsearch.addToInventory')}
+                          </button>
+                        </div>
                       )}
                     </div>
                   ))}
@@ -262,11 +271,20 @@ export default function ReverseSearch({
                         isFavorited={favoriteIds.has(r.recipe.id)}
                         matchBadge={{ type: 'partial', missingCount: r.missingCount, substitutableCount: r.substitutableCount }} />
                       {!addedToFridge.has(r.recipe.id) && (
-                        <button onClick={(e) => { e.stopPropagation(); handleAddAllToInventory(r.recipe) }}
-                          className="absolute bottom-2 right-3 px-2 py-0.5 rounded text-[9px] transition-all hover:brightness-110"
-                          style={{ fontFamily: 'var(--font-mono)', color: '#10B981', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                          + {t('rsearch.addToInventory')}
-                        </button>
+                        <div className="absolute bottom-2 right-2 flex gap-1">
+                          {onAddToPlan && (
+                            <button onClick={(e) => { e.stopPropagation(); onAddToPlan(r.recipe.id) }}
+                              className="px-2 py-0.5 rounded text-[9px] transition-all hover:brightness-110"
+                              style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF', background: 'rgba(0, 229, 255, 0.06)', border: '1px solid rgba(0, 229, 255, 0.15)' }}>
+                              + {lang === 'en' ? 'Plan' : '计划'}
+                            </button>
+                          )}
+                          <button onClick={(e) => { e.stopPropagation(); handleAddAllToInventory(r.recipe) }}
+                            className="px-2 py-0.5 rounded text-[9px] transition-all hover:brightness-110"
+                            style={{ fontFamily: 'var(--font-mono)', color: '#10B981', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                            + {t('rsearch.addToInventory')}
+                          </button>
+                        </div>
                       )}
                     </div>
                   ))}

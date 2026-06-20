@@ -288,6 +288,7 @@ export default function App() {
             onResetPreferences={engine.reset}
             onGenerateMealPlanList={handleGenerateMealPlanList}
             onAddToCart={handleAddToCart}
+            onAddToPlan={(id) => handleAddToPlan(id)}
           />
         </div>
       )}
