@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { Timer, ChevronRight, Minus, Plus } from 'lucide-react'
-import type { Recipe, Category } from './data/types'
+import type { Recipe, Category, MealPlan } from './data/types'
 import { RECIPES } from './data/recipes'
 import { useStoredState } from './hooks/useStoredState'
 import { usePreferenceEngine } from './hooks/usePreferenceEngine'
@@ -27,7 +27,7 @@ export default function App() {
   const [expandedStep, setExpandedStep] = useState<number | null>(null)
   const [isInventoryOpen, setIsInventoryOpen] = useState(false)
   const [isTimerOpen, setIsTimerOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<'discover' | 'browse' | 'journal' | 'reverseSearch'>('discover')
+  const [activeTab, setActiveTab] = useState<'discover' | 'browse' | 'journal' | 'reverseSearch' | 'planner'>('discover')
   const [drinkSub, setDrinkSub] = useState<'all' | 'alcoholic' | 'nonalcoholic'>('all')
   const [browseSub, setBrowseSub] = useState<Category | 'all'>('all')
   const [servings, setServings] = useState(2)
@@ -207,6 +207,24 @@ export default function App() {
     })
   }, [inventory])
 
+  /* Generate meal plan list → merge all plan recipe IDs into cart */
+  const handleGenerateMealPlanList = useCallback((plan: MealPlan) => {
+    const allIds: string[] = []
+    for (const day of plan.days) {
+      for (const slot of day.slots) {
+        if (slot.recipeId) allIds.push(slot.recipeId)
+      }
+    }
+    setCartItems((prev) => {
+      const next = { ...prev }
+      for (const id of allIds) {
+        next[id] = (next[id] ?? 0) + 1
+      }
+      return next
+    })
+    toast(t('planner.listGenerated'))
+  }, [toast, t])
+
   return (
     <>
       {/* ── Browse ──────────────────────────────────────────────── */}
@@ -236,6 +254,8 @@ export default function App() {
             onAddToInventory={handleToggleInventory}
             preferenceTags={preferenceTags}
             onResetPreferences={engine.reset}
+            onGenerateMealPlanList={handleGenerateMealPlanList}
+            onAddToCart={handleAddToCart}
           />
         </div>
       )}

@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
-import { Search, Flame, ChefHat, Sparkles, BookOpen, Grid3X3, ShoppingCart, Shuffle, Clock, CheckCircle2, Heart, ArrowUp, SlidersHorizontal, ChevronDown, Languages, Timer } from 'lucide-react'
-import type { Recipe, Category } from '../data/types'
+import { Search, Flame, ChefHat, Sparkles, BookOpen, Grid3X3, ShoppingCart, Shuffle, Clock, CheckCircle2, Heart, ArrowUp, SlidersHorizontal, ChevronDown, Languages, Timer, ClipboardList } from 'lucide-react'
+import type { Recipe, Category, MealPlan } from '../data/types'
 import { RECIPES } from '../data/recipes'
 import RecipeCard from './RecipeCard'
 import PreferenceBar from './PreferenceBar'
@@ -9,6 +9,7 @@ import { useLang } from '../i18n/context'
 import FridgeIcon from './FridgeIcon'
 import CookJournal from './CookJournal'
 import ReverseSearch from './ReverseSearch'
+import MealPlanner from './MealPlanner'
 
 interface RecipeListProps {
   cartCount: number
@@ -16,8 +17,8 @@ interface RecipeListProps {
   recentIds: string[]
   favoriteIds: Set<string>
   recipeScores: Map<string, number>
-  activeTab: 'discover' | 'browse' | 'journal' | 'reverseSearch'
-  onTabChange: (tab: 'discover' | 'browse' | 'journal' | 'reverseSearch') => void
+  activeTab: 'discover' | 'browse' | 'journal' | 'reverseSearch' | 'planner'
+  onTabChange: (tab: 'discover' | 'browse' | 'journal' | 'reverseSearch' | 'planner') => void
   drinkSub: 'all' | 'alcoholic' | 'nonalcoholic'
   onDrinkSubChange: (sub: 'all' | 'alcoholic' | 'nonalcoholic') => void
   browseSub: Category | 'all'
@@ -31,13 +32,16 @@ interface RecipeListProps {
   onAddToInventory: (nameZh: string) => void
   preferenceTags: string[]
   onResetPreferences: () => void
+  onGenerateMealPlanList: (plan: MealPlan) => void
+  onAddToCart: (id: string) => void
 }
 
-const TABS: { key: 'discover' | 'browse' | 'journal' | 'reverseSearch'; icon: typeof Flame }[] = [
+const TABS: { key: 'discover' | 'browse' | 'journal' | 'reverseSearch' | 'planner'; icon: typeof Flame }[] = [
   { key: 'discover', icon: Sparkles },
   { key: 'browse', icon: Grid3X3 },
   { key: 'journal', icon: BookOpen },
   { key: 'reverseSearch', icon: Search },
+  { key: 'planner', icon: ClipboardList },
 ]
 
 const BROWSE_SUBS: { key: Category | 'all'; icon: typeof Flame }[] = [
@@ -55,7 +59,7 @@ const SCENES: { key: string; color: string; filter: (r: Recipe) => boolean }[] =
   { key: 'drinks', color: '#FF2E93', filter: (r) => r.category === 'drink' },
 ]
 
-export default function RecipeList({ cartCount, inventory, recentIds, favoriteIds, recipeScores, activeTab, onTabChange, drinkSub, onDrinkSubChange, browseSub, onBrowseSubChange, onSelect, onOpenCart, onOpenInventory, onOpenTimer, onQuickAddMissing, onToggleRecipeFavorite, onAddToInventory, preferenceTags, onResetPreferences }: RecipeListProps) {
+export default function RecipeList({ cartCount, inventory, recentIds, favoriteIds, recipeScores, activeTab, onTabChange, drinkSub, onDrinkSubChange, browseSub, onBrowseSubChange, onSelect, onOpenCart, onOpenInventory, onOpenTimer, onQuickAddMissing, onToggleRecipeFavorite, onAddToInventory, preferenceTags, onResetPreferences, onGenerateMealPlanList, onAddToCart }: RecipeListProps) {
   const [query, setQuery] = useState('')
   const [showMakeable, setShowMakeable] = useState(false)
   const [showFavorites, setShowFavorites] = useState(false)
@@ -688,6 +692,13 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
             favoriteIds={favoriteIds}
             onAddToInventory={onAddToInventory}
           />
+        )}
+
+        {/* ── Meal Planner tab ──────────────────────────── */}
+        {activeTab === 'planner' && !query && !showFavorites && (
+          <MealPlanner
+            onGenerateList={(plan) => onGenerateMealPlanList(plan)}
+            onAddToCart={onAddToCart} />
         )}
 
         {/* ── Browse / filtered view ──────────────────────────── */}
