@@ -32,6 +32,10 @@ export default function PlanDetail({ plan, onUpdate, onBack, onDelete, onGenerat
     onUpdate({ days: [...plan.days, newDay] })
   }
 
+  const removeDay = (dayId: string) => {
+    onUpdate({ days: plan.days.filter((d) => d.id !== dayId) })
+  }
+
   const addSlotToDay = (dayId: string) => {
     onUpdate({
       days: plan.days.map((d) =>
@@ -147,7 +151,7 @@ export default function PlanDetail({ plan, onUpdate, onBack, onDelete, onGenerat
           return (
             <div key={day.id} className="mb-3 rounded-lg overflow-hidden"
               style={{ background: '#121620', border: '1px solid rgba(0, 229, 255, 0.06)' }}>
-              {/* Day header — no delete button */}
+              {/* Day header */}
               <div className="flex items-center justify-between px-3 py-2"
                 style={{ borderBottom: '1px solid rgba(0, 229, 255, 0.04)' }}>
                 <div className="flex items-center gap-2">
@@ -158,6 +162,10 @@ export default function PlanDetail({ plan, onUpdate, onBack, onDelete, onGenerat
                     · {day.slots.length} {lang === 'en' ? 'meals' : '餐'} · {recipeCount} {lang === 'en' ? 'set' : '道'}
                   </span>
                 </div>
+                <button onClick={() => removeDay(day.id)}
+                  className="text-[10px] text-text-dim hover:text-[#FF2E93]" style={{ fontFamily: 'var(--font-mono)' }}>
+                  <X size={12} />
+                </button>
               </div>
 
               {/* Slots */}

@@ -20,6 +20,12 @@ export default function FocusMode({ steps, onExit, onComplete }: FocusModeProps)
   const [visible, setVisible] = useState(false)
   const [activeStep, setActiveStep] = useState(0)
   const [flash, setFlash] = useState(false)
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  /* Cleanup timeout on unmount */
+  useEffect(() => {
+    return () => { if (exitTimerRef.current) clearTimeout(exitTimerRef.current) }
+  }, [])
   const [countdown, setCountdown] = useState(0)
   const [showConfirm, setShowConfirm] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
@@ -132,7 +138,7 @@ export default function FocusMode({ steps, onExit, onComplete }: FocusModeProps)
     } else {
       setVisible(false)
       onComplete?.((activeStep + 1) / steps.length)
-      setTimeout(onExit, 400)
+      exitTimerRef.current = setTimeout(onExit, 400)
     }
   }, [onExit, onComplete, sound, hasActiveTimer, isTheory, activeStep, steps.length])
 
@@ -141,7 +147,7 @@ export default function FocusMode({ steps, onExit, onComplete }: FocusModeProps)
     setShowConfirm(false)
     setVisible(false)
     onComplete?.((activeStep + 1) / steps.length)
-    setTimeout(onExit, 400)
+    exitTimerRef.current = setTimeout(onExit, 400)
   }, [onExit, onComplete, sound, activeStep, steps.length])
 
   const handleCancelExit = useCallback(() => {
@@ -186,10 +192,10 @@ export default function FocusMode({ steps, onExit, onComplete }: FocusModeProps)
     } else {
       setCelebrating(true)
       sound.zenith()
-      setTimeout(() => {
+      exitTimerRef.current = setTimeout(() => {
         setVisible(false)
         onComplete?.(1)
-        setTimeout(onExit, 400)
+        exitTimerRef.current = setTimeout(onExit, 400)
       }, 1200)
     }
   }, [activeStep, onExit, onComplete, sound])

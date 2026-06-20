@@ -9,6 +9,7 @@ import { RECIPES } from '../data/recipes'
 
 const CYAN = '#00E5FF'
 const BG_CARD = '#121620'
+const recipeMap = new Map(RECIPES.map((r) => [r.id, r]))
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
 
@@ -45,7 +46,6 @@ export default function NutritionDashboard() {
 
   /* ── Data ───────────────────────────────────────────────────── */
   const stats = useNutritionStats(dateStart, dateEnd)
-  const recipeMap = useMemo(() => new Map(RECIPES.map((r) => [r.id, r])), [])
 
   /* ── Date <-> input helpers ──────────────────────────────────── */
   const dateToInput = (ms: number) => {
@@ -364,9 +364,9 @@ export default function NutritionDashboard() {
                       {stats.topRecipes.map(({ recipeId, count }, i) => {
                         const recipe = recipeMap.get(recipeId)
                         const name = recipe
-                          ? lang === 'zh'
-                            ? recipe.nameZh
-                            : recipe.nameEn
+                          ? lang === 'en'
+                            ? recipe.nameEn
+                            : recipe.nameZh
                           : recipeId
                         return (
                           <div key={recipeId} className="flex items-center gap-2">

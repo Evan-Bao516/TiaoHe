@@ -2,18 +2,30 @@ import { ChevronDown, ArrowRightLeft, Plus, Check, ShoppingCart } from 'lucide-r
 import { useLang } from '../i18n/context'
 import type { Ingredient } from '../data/types'
 
-function scaleAmount(amount: string, servings: number): string {
-  if (servings === 2) return amount
-  const m = amount.match(/^([\d/.]+)\s*(.+)$/)
-  if (!m) return amount
-  const raw = m[1]
-  let num: number
+function parseNumber(raw: string): number {
   if (raw.includes('/')) {
     const [numer, denom] = raw.split('/')
-    num = parseFloat(numer) / parseFloat(denom)
-  } else {
-    num = parseFloat(raw)
+    return parseFloat(numer) / parseFloat(denom)
   }
+  return parseFloat(raw)
+}
+
+function scaleAmount(amount: string, servings: number): string {
+  if (servings === 2) return amount
+  // Range: "6-8片" → scale both ends
+  const rangeMatch = amount.match(/^([\d/.]+)-([\d/.]+)\s*(.+)$/)
+  if (rangeMatch) {
+    const from = parseNumber(rangeMatch[1])
+    const to = parseNumber(rangeMatch[2])
+    if (isNaN(from) || isNaN(to)) return amount
+    const sFrom = Math.round(from * servings / 2 * 10) / 10
+    const sTo = Math.round(to * servings / 2 * 10) / 10
+    return `${sFrom}-${sTo}${rangeMatch[3]}`
+  }
+  // Single value: "15g" → scale
+  const m = amount.match(/^([\d/.]+)\s*(.+)$/)
+  if (!m) return amount
+  const num = parseNumber(m[1])
   if (isNaN(num)) return amount
   const scaled = Math.round(num * servings / 2 * 10) / 10
   return `${scaled}${m[2]}`

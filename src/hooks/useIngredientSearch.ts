@@ -42,7 +42,6 @@ export function getAllIngredientNames(): string[] {
   for (const r of RECIPES) {
     for (const ing of r.ingredients) {
       names.add(ing.nameZh)
-      names.add(ing.nameEn)
     }
   }
   return [...names]
