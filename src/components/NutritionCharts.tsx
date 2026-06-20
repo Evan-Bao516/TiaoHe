@@ -226,10 +226,10 @@ function MacrosBarChart({ protein, fats, carbs }: { protein: number; fats: numbe
 
 function CuisineDonut({ data }: { data: { name: string; count: number; color: string }[] }) {
   const total = data.reduce((s, d) => s + d.count, 0)
-  const CX = 60
-  const CY = 60
-  const R = 48
-  const STROKE_W = 18
+  const CX = 80
+  const CY = 70
+  const R = 55
+  const STROKE_W = 20
   const CIRCUMFERENCE = 2 * Math.PI * R
 
   /* Sort descending for consistent rendering */
@@ -252,7 +252,7 @@ function CuisineDonut({ data }: { data: { name: string; count: number; color: st
     return (
       <div className="flex flex-col items-center justify-center py-6"
         style={{ background: 'rgba(0, 229, 255, 0.02)', border: '1px solid rgba(0, 229, 255, 0.06)', borderRadius: 8 }}>
-        <svg viewBox="0 0 120 140" className="w-full max-w-[140px] h-auto" role="img" aria-label="No cuisine data">
+        <svg viewBox="0 0 160 200" className="w-full h-auto" role="img" aria-label="No cuisine data">
           <circle cx={CX} cy={CY} r={R} fill="none" stroke={GRID} strokeWidth={STROKE_W} />
           <text x={CX} y={CY} textAnchor="middle" dominantBaseline="central"
             fill={MUTED} fontSize="13" fontFamily="var(--font-mono), monospace" fontWeight={700}>
@@ -267,10 +267,10 @@ function CuisineDonut({ data }: { data: { name: string; count: number; color: st
     )
   }
 
-  const legendY = CY + R + 16
+  const legendY = CY + R + 20
 
   return (
-    <svg viewBox="0 0 120 140" className="w-full max-w-[140px] h-auto mx-auto" role="img" aria-label="Cuisine distribution donut chart">
+    <svg viewBox="0 0 160 200" className="w-full h-auto" role="img" aria-label="Cuisine distribution donut chart">
       {/* Background ring */}
       <circle cx={CX} cy={CY} r={R} fill="none" stroke={GRID} strokeWidth={STROKE_W} />
 
@@ -300,7 +300,7 @@ function CuisineDonut({ data }: { data: { name: string; count: number; color: st
 
       {/* Legend */}
       {sorted.map((d, i) => {
-        const ly = legendY + i * 14
+        const ly = legendY + i * 18
         return (
           <g key={i}>
             <circle cx={CX - 38} cy={ly} r={3} fill={d.color} opacity={0.85} />
