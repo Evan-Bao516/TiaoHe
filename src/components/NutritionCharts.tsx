@@ -17,17 +17,8 @@ const MUTED    = '#8A94A6'
 const DIM      = '#5A6272'
 const BG_DARK  = '#0A0E17'
 const GRID     = 'rgba(0,229,255,0.06)'
-const GLOW     = 'rgba(0,229,255,0.18)'
 
 /* ── Helpers ───────────────────────────────────────────────────── */
-
-/** Resolve an inline <style> element keyframes for glow animations */
-const glowKeyframes = `
-@keyframes bar-glow {
-  0%, 100% { filter: drop-shadow(0 0 0px transparent); }
-  50%      { filter: drop-shadow(0 0 6px var(--glow-color)); }
-}
-`
 
 /* ═══════════════════════════════════════════════════════════════
    KcalLineChart
@@ -303,7 +294,7 @@ function CuisineDonut({ data }: { data: { name: string; count: number; color: st
         {total}
       </text>
       <text x={CX} y={CY + 14} textAnchor="middle" dominantBaseline="central"
-        fill={DIM} fontSize="7" fontFamily="var(--font-body), sans-serif" fontWeight={500} letterSpacing="0.15em" textTransform="uppercase">
+        fill={DIM} fontSize="7" fontFamily="var(--font-body), sans-serif" fontWeight={500} letterSpacing="0.15em">
         Total
       </text>
 

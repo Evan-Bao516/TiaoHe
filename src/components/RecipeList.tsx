@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
-import { Search, Flame, ChefHat, Sparkles, BookOpen, Grid3X3, ShoppingCart, Shuffle, Clock, CheckCircle2, Heart, ArrowUp, SlidersHorizontal, ChevronDown, Languages, Timer, ClipboardList } from 'lucide-react'
+import { Search, Flame, ChefHat, Sparkles, BookOpen, Grid3X3, ShoppingCart, Shuffle, Clock, CheckCircle2, Heart, ArrowUp, SlidersHorizontal, ChevronDown, Languages, Timer, ClipboardList, BarChart3 } from 'lucide-react'
 import type { Recipe, Category, MealPlan } from '../data/types'
 import { RECIPES } from '../data/recipes'
 import RecipeCard from './RecipeCard'
@@ -10,6 +10,7 @@ import FridgeIcon from './FridgeIcon'
 import CookJournal from './CookJournal'
 import ReverseSearch from './ReverseSearch'
 import MealPlanner from './MealPlanner'
+import NutritionDashboard from './NutritionDashboard'
 
 interface RecipeListProps {
   cartCount: number
@@ -17,8 +18,8 @@ interface RecipeListProps {
   recentIds: string[]
   favoriteIds: Set<string>
   recipeScores: Map<string, number>
-  activeTab: 'discover' | 'browse' | 'journal' | 'reverseSearch' | 'planner'
-  onTabChange: (tab: 'discover' | 'browse' | 'journal' | 'reverseSearch' | 'planner') => void
+  activeTab: 'discover' | 'browse' | 'journal' | 'reverseSearch' | 'planner' | 'nutrition'
+  onTabChange: (tab: 'discover' | 'browse' | 'journal' | 'reverseSearch' | 'planner' | 'nutrition') => void
   drinkSub: 'all' | 'alcoholic' | 'nonalcoholic'
   onDrinkSubChange: (sub: 'all' | 'alcoholic' | 'nonalcoholic') => void
   browseSub: Category | 'all'
@@ -36,12 +37,13 @@ interface RecipeListProps {
   onAddToCart: (id: string) => void
 }
 
-const TABS: { key: 'discover' | 'browse' | 'journal' | 'reverseSearch' | 'planner'; icon: typeof Flame }[] = [
+const TABS: { key: 'discover' | 'browse' | 'journal' | 'reverseSearch' | 'planner' | 'nutrition'; icon: typeof Flame }[] = [
   { key: 'discover', icon: Sparkles },
   { key: 'browse', icon: Grid3X3 },
   { key: 'journal', icon: BookOpen },
   { key: 'reverseSearch', icon: Search },
   { key: 'planner', icon: ClipboardList },
+  { key: 'nutrition', icon: BarChart3 },
 ]
 
 const BROWSE_SUBS: { key: Category | 'all'; icon: typeof Flame }[] = [
@@ -699,6 +701,11 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
           <MealPlanner
             onGenerateList={(plan) => onGenerateMealPlanList(plan)}
             onAddToCart={onAddToCart} />
+        )}
+
+        {/* ── Nutrition Dashboard tab ────────────────────── */}
+        {activeTab === 'nutrition' && !query && !showFavorites && (
+          <NutritionDashboard />
         )}
 
         {/* ── Browse / filtered view ──────────────────────────── */}
