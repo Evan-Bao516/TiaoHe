@@ -109,6 +109,21 @@ export interface CookEntry {
   completionRatio: number   // 0-1
 }
 
+/** Nutrition Dashboard */
+
+export interface NutritionStats {
+  totalKcal: number
+  avgKcalPerDay: number
+  totalCookCount: number
+  avgRating: number
+  totalMinutes: number
+  macros: { protein: number; fats: number; carbs: number }
+  kcalTrend: { date: string; kcal: number }[]
+  cuisineDistribution: { name: string; count: number; color: string }[]
+  tagDistribution: { tag: string; count: number }[]
+  topRecipes: { recipeId: string; count: number }[]
+}
+
 /** Meal Planner */
 
 export interface MealSlot {

@@ -253,6 +253,27 @@ export const T: Record<string, Record<Locale, string>> = {
   'rsearch.empty':          { zh: '输入食材开始搜索', en: 'Enter ingredients to start searching' },
   'rsearch.noMatch':        { zh: '没有菜谱匹配这些食材', en: 'No recipes match these ingredients' },
 
+  /* Nutrition Dashboard */
+  'tab.nutrition':          { zh: '营养',   en: 'Nutrition' },
+  'nutri.title':            { zh: '营养概览', en: 'Nutrition Overview' },
+  'nutri.totalKcal':        { zh: '总摄入', en: 'Total Calories' },
+  'nutri.avgKcalPerDay':    { zh: '日均摄入', en: 'Daily Avg' },
+  'nutri.totalCooks':       { zh: '烹饪次数', en: 'Total Cooks' },
+  'nutri.avgRating':        { zh: '平均评分', en: 'Avg Rating' },
+  'nutri.totalMinutes':     { zh: '总用时', en: 'Total Time' },
+  'nutri.macros':           { zh: '营养构成', en: 'Macros' },
+  'nutri.protein':          { zh: '蛋白质', en: 'Protein' },
+  'nutri.fats':             { zh: '脂肪', en: 'Fats' },
+  'nutri.carbs':            { zh: '碳水', en: 'Carbs' },
+  'nutri.kcalTrend':        { zh: '热量趋势', en: 'Calorie Trend' },
+  'nutri.cuisine':          { zh: '菜系分布', en: 'Cuisine Breakdown' },
+  'nutri.tags':             { zh: '标签分布', en: 'Tag Breakdown' },
+  'nutri.topRecipes':       { zh: '常做菜谱', en: 'Top Recipes' },
+  'nutri.period':           { zh: '时间范围', en: 'Period' },
+  'nutri.period7d':         { zh: '最近 7 天', en: 'Last 7 Days' },
+  'nutri.period30d':        { zh: '最近 30 天', en: 'Last 30 Days' },
+  'nutri.periodAll':        { zh: '全部时间', en: 'All Time' },
+
   /* Meal Planner */
   'tab.planner':            { zh: '计划', en: 'Plans' },
   'planner.newPlan':        { zh: '+ 新建', en: '+ New' },
