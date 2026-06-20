@@ -175,6 +175,47 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
   }, [prefCuisine, prefSpice, prefTime, prefType])
   const hasPrefs = prefCuisine !== 'all' || prefSpice !== 'all' || prefTime !== 'all' || prefType !== 'all'
 
+  /* Suggested recipes (scored + exploration) */
+  const suggestedItems = useMemo(() => {
+    const seen = new Set(recentIds)
+    // All recipes sorted by score, excluding viewed
+    const scored = RECIPES
+      .filter((r) => !seen.has(r.id))
+      .map((r) => ({ recipe: r, score: recipeScores.get(r.id) ?? 0.5 }))
+      .sort((a, b) => b.score - a.score)
+
+    // High-score pool and exploration pool
+    const highScore = scored.filter((s) => s.score >= 0.5)
+    const explore = scored.filter((s) => s.score < 0.5)
+
+    // Shuffle exploration pool
+    for (let i = explore.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [explore[i], explore[j]] = [explore[j], explore[i]]
+    }
+
+    // Build: 3 high-score + 2 exploration
+    const items: { recipe: Recipe; label: string }[] = []
+    highScore.slice(0, 3).forEach((s) => items.push({ recipe: s.recipe, label: '' }))
+    explore.slice(0, 2).forEach((s) => items.push({
+      recipe: s.recipe,
+      label: t('pref.explore'),
+    }))
+
+    // Fill remaining with high-score if exploration pool insufficient
+    if (items.length < 5) {
+      const used = new Set(items.map((i) => i.recipe.id))
+      for (const s of scored) {
+        if (items.length >= 5) break
+        if (!used.has(s.recipe.id)) {
+          items.push({ recipe: s.recipe, label: '' })
+        }
+      }
+    }
+
+    return items.slice(0, 5)
+  }, [lang, recentIds, RECIPES, recipeScores])
+
   /* Blind box roll */
   const handleBlindBox = () => {
     const candidates = prefMatches.length > 0 ? prefMatches : RECIPES
@@ -610,55 +651,17 @@ export default function RecipeList({ cartCount, inventory, recentIds, favoriteId
                   <div style={{ flex: 1, height: 1, background: 'rgba(255, 159, 10, 0.06)' }} />
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  {(() => {
-                    const seen = new Set(recentIds)
-                    // All recipes sorted by score, excluding viewed
-                    const scored = RECIPES
-                      .filter((r) => !seen.has(r.id))
-                      .map((r) => ({ recipe: r, score: recipeScores.get(r.id) ?? 0.5 }))
-                      .sort((a, b) => b.score - a.score)
-
-                    // High-score pool and exploration pool
-                    const highScore = scored.filter((s) => s.score >= 0.5)
-                    const explore = scored.filter((s) => s.score < 0.5)
-
-                    // Shuffle exploration pool
-                    for (let i = explore.length - 1; i > 0; i--) {
-                      const j = Math.floor(Math.random() * (i + 1));
-                      [explore[i], explore[j]] = [explore[j], explore[i]]
-                    }
-
-                    // Build: 3 high-score + 2 exploration
-                    const items: { recipe: typeof RECIPES[0]; label: string }[] = []
-                    highScore.slice(0, 3).forEach((s) => items.push({ recipe: s.recipe, label: '' }))
-                    explore.slice(0, 2).forEach((s) => items.push({
-                      recipe: s.recipe,
-                      label: t('pref.explore'),
-                    }))
-
-                    // Fill remaining with high-score if exploration pool insufficient
-                    if (items.length < 5) {
-                      const used = new Set(items.map((i) => i.recipe.id))
-                      for (const s of scored) {
-                        if (items.length >= 5) break
-                        if (!used.has(s.recipe.id)) {
-                          items.push({ recipe: s.recipe, label: '' })
-                        }
-                      }
-                    }
-
-                    return items.slice(0, 5).map(({ recipe, label }) => (
-                      <button key={recipe.id} onClick={() => handleSelect(recipe)}
-                        className="text-left px-3 py-2 rounded-md transition-all duration-200 hover:bg-charcoal-800/50"
-                        style={{ background: '#121620', border: `1px solid ${label ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0, 229, 255, 0.04)'}` }}>
-                        <span className="text-[12px] text-text-primary block"
-                          style={{ fontFamily: 'var(--font-display)', fontWeight: 600 }}>{recipe.emoji} {lang === 'en' ? recipe.nameEn : recipe.nameZh}</span>
-                        {label && (
-                          <span className="text-[9px]" style={{ fontFamily: 'var(--font-body)', color: '#10B981' }}>{label}</span>
-                        )}
-                      </button>
-                    ))
-                  })()}
+                  {suggestedItems.map(({ recipe, label }) => (
+                    <button key={recipe.id} onClick={() => handleSelect(recipe)}
+                      className="text-left px-3 py-2 rounded-md transition-all duration-200 hover:bg-charcoal-800/50"
+                      style={{ background: '#121620', border: `1px solid ${label ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0, 229, 255, 0.04)'}` }}>
+                      <span className="text-[12px] text-text-primary block"
+                        style={{ fontFamily: 'var(--font-display)', fontWeight: 600 }}>{recipe.emoji} {lang === 'en' ? recipe.nameEn : recipe.nameZh}</span>
+                      {label && (
+                        <span className="text-[9px]" style={{ fontFamily: 'var(--font-body)', color: '#10B981' }}>{label}</span>
+                      )}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}

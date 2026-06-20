@@ -13,6 +13,7 @@ export const T: Record<string, Record<Locale, string>> = {
   'tab.western':        { zh: '西餐',   en: 'Western' },
   'tab.drink':          { zh: '饮料',   en: 'Drinks' },
   'tab.basic':          { zh: '基本功', en: 'Basics' },
+  'tab.journal':        { zh: '日志',   en: 'Journal' },
 
   /* Search */
   'search.placeholder': { zh: '搜索菜谱、食材、标签...', en: 'Search recipes, ingredients, tags...' },
