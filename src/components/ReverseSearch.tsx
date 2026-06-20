@@ -58,6 +58,7 @@ export default function ReverseSearch({
 
   // Active section for jump buttons
   const [activeSection, setActiveSection] = useState<'perfect' | 'near' | 'partial' | null>(null)
+  const [focused, setFocused] = useState(false)
 
   return (
     <div className="flex flex-col min-h-0">
@@ -69,11 +70,13 @@ export default function ReverseSearch({
             <Search size={14} strokeWidth={1.5} className="text-text-dim flex-shrink-0" />
             <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setTimeout(() => setFocused(false), 150)}
               placeholder={t('rsearch.placeholder')}
               className="flex-1 bg-transparent text-[13px] text-text-primary placeholder:text-text-dim outline-none"
               style={{ fontFamily: 'var(--font-body)' }} />
           </div>
-          {inputValue && suggestions.length > 0 && (
+          {focused && inputValue && suggestions.length > 0 && (
             <div className="absolute left-0 right-0 top-full mt-1 z-30 rounded-md overflow-hidden"
               style={{ background: '#121620', border: '1px solid rgba(0, 229, 255, 0.1)' }}>
               {suggestions.map((name) => (
@@ -151,7 +154,7 @@ export default function ReverseSearch({
                 { key: 'near' as const, label: t('rsearch.near'), count: near.length, color: '#FF9F0A' },
                 { key: 'partial' as const, label: t('rsearch.partial'), count: partial.length, color: '#5A6272' },
               ].map(({ key, label, count, color }) => (
-                <button key={key} onClick={() => setActiveSection(key)}
+                <button key={key} onClick={() => { setActiveSection(key); document.getElementById(`section-${key}`)?.scrollIntoView({ behavior: 'smooth' }) }}
                   disabled={count === 0}
                   className="flex-1 py-1.5 rounded text-[10px] tracking-[0.06em] transition-all"
                   style={{
