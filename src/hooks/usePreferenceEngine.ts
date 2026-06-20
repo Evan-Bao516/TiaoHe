@@ -8,6 +8,11 @@ const LEARNING_RATE = 0.12
 const DECAY_INTERVAL_MS = 7 * 24 * 3600 * 1000 // 7 days
 const DECAY_FACTOR = 0.85
 
+interface CookMeta {
+  rating?: number    // 1-5
+  tags?: string[]    // custom tags from cook entry
+}
+
 const ACTION_WEIGHTS: Record<ActionType, number> = {
   view: 0.4,
   favorite: 1.0,
@@ -84,11 +89,20 @@ export function usePreferenceEngine() {
     makeInitialProfile(),
   )
 
-  const record = useCallback((recipe: Recipe, action: ActionType) => {
+  const record = useCallback((recipe: Recipe, action: ActionType, meta?: CookMeta) => {
     setProfile((prev) => {
       // 1. Apply time decay
       const p = applyDecay(prev)
-      const weight = ACTION_WEIGHTS[action]
+      let weight = ACTION_WEIGHTS[action]
+
+      // Apply rating modifier for cook actions
+      if (action === 'cook' && meta) {
+        if (meta.rating !== undefined && meta.rating >= 4) {
+          weight *= 1.5
+        } else if (meta.rating !== undefined && meta.rating <= 2) {
+          weight *= 0.3
+        }
+      }
 
       // 2. Compute alpha (signed)
       const alpha = weight * LEARNING_RATE
