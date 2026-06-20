@@ -273,6 +273,10 @@ export const T: Record<string, Record<Locale, string>> = {
   'nutri.period7d':         { zh: '最近 7 天', en: 'Last 7 Days' },
   'nutri.period30d':        { zh: '最近 30 天', en: 'Last 30 Days' },
   'nutri.periodAll':        { zh: '全部时间', en: 'All Time' },
+  'nutri.detailShow':       { zh: '查看详情', en: 'Show Details' },
+  'nutri.detailHide':       { zh: '收起详情', en: 'Hide Details' },
+  'nutri.empty':            { zh: '该时间段暂无烹饪记录', en: 'No records in this period' },
+  'nutri.emptyHint':        { zh: '调整日期范围或开始烹饪吧', en: 'Adjust the date range or start cooking' },
 
   /* Meal Planner */
   'tab.planner':            { zh: '计划', en: 'Plans' },
