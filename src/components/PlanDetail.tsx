@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, X, Search, Edit3, Check } from 'lucide-react'
+import { ArrowLeft, X, Search, Edit3, Check, Plus, Minus } from 'lucide-react'
 import type { MealPlan, MealDay, Recipe } from '../data/types'
 import { RECIPES } from '../data/recipes'
 import RecipePicker from './RecipePicker'
@@ -20,44 +20,35 @@ function makeId(): string {
 export default function PlanDetail({ plan, onUpdate, onBack, onDelete, onGenerateList }: PlanDetailProps) {
   const { t, lang } = useLang()
   const [pickerFor, setPickerFor] = useState<{ dayId: string; slotId: string } | null>(null)
-  const [newSlotName, setNewSlotName] = useState('')
   const [editingName, setEditingName] = useState(false)
   const [nameDraft, setNameDraft] = useState(plan.name)
 
-  const mealsPerDay = plan.days[0]?.slots.length || 0
-
   const addDay = () => {
-    const template = plan.days[0]
-    const slotNames = template ? template.slots.map((s) => s.name) : [lang === 'en' ? 'Lunch' : '午餐']
     const newDay: MealDay = {
       id: makeId(),
       label: `${lang === 'en' ? 'Day' : '第'}${plan.days.length + 1}${lang === 'en' ? '' : '天'}`,
-      slots: slotNames.map((name) => ({ id: makeId(), name, recipeId: null })),
+      slots: [{ id: makeId(), name: lang === 'en' ? 'Lunch' : '午餐', recipeId: null }],
     }
     onUpdate({ days: [...plan.days, newDay] })
   }
 
-  const removeDay = (dayId: string) => {
-    onUpdate({ days: plan.days.filter((d) => d.id !== dayId) })
-  }
-
-  const addSlotToAll = () => {
-    const name = newSlotName.trim() || (lang === 'en' ? 'Meal' : '餐次')
+  const addSlotToDay = (dayId: string) => {
     onUpdate({
-      days: plan.days.map((d) => ({
-        ...d,
-        slots: [...d.slots, { id: makeId(), name, recipeId: null }],
-      })),
+      days: plan.days.map((d) =>
+        d.id === dayId
+          ? { ...d, slots: [...d.slots, { id: makeId(), name: lang === 'en' ? 'Meal' : '餐次', recipeId: null }] }
+          : d
+      ),
     })
-    setNewSlotName('')
   }
 
-  const removeSlotFromAll = (slotIndex: number) => {
+  const removeSlotFromDay = (dayId: string, slotId: string) => {
     onUpdate({
-      days: plan.days.map((d) => ({
-        ...d,
-        slots: d.slots.filter((_, i) => i !== slotIndex),
-      })),
+      days: plan.days.map((d) =>
+        d.id === dayId
+          ? { ...d, slots: d.slots.filter((s) => s.id !== slotId) }
+          : d
+      ),
     })
   }
 
@@ -99,6 +90,7 @@ export default function PlanDetail({ plan, onUpdate, onBack, onDelete, onGenerat
   }
 
   const totalRecipes = plan.days.reduce((s, d) => s + d.slots.filter((sl) => sl.recipeId).length, 0)
+  const totalSlots = plan.days.reduce((s, d) => s + d.slots.length, 0)
 
   return (
     <div className="flex flex-col min-h-0">
@@ -111,12 +103,12 @@ export default function PlanDetail({ plan, onUpdate, onBack, onDelete, onGenerat
             <input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)}
               autoFocus
               onKeyDown={(e) => {
-                if (e.key === 'Enter') { onUpdate({ name: nameDraft }); setEditingName(false) }
+                if (e.key === 'Enter') { onUpdate({ name: nameDraft || plan.name }); setEditingName(false) }
                 if (e.key === 'Escape') { setNameDraft(plan.name); setEditingName(false) }
               }}
               className="flex-1 bg-transparent text-[16px] text-text-primary outline-none"
               style={{ fontFamily: 'var(--font-display)', fontWeight: 600, borderBottom: '1px solid rgba(0,229,255,0.3)' }} />
-            <button onClick={() => { onUpdate({ name: nameDraft }); setEditingName(false) }}
+            <button onClick={() => { onUpdate({ name: nameDraft || plan.name }); setEditingName(false) }}
               className="text-[#10B981]"><Check size={16} /></button>
             <button onClick={() => { setNameDraft(plan.name); setEditingName(false) }}
               className="text-text-dim"><X size={16} /></button>
@@ -137,29 +129,15 @@ export default function PlanDetail({ plan, onUpdate, onBack, onDelete, onGenerat
         </button>
       </div>
 
-      {/* Config summary + controls */}
+      {/* Config summary */}
       <div className="px-4 pb-3 flex items-center gap-4 text-[10px]"
         style={{ fontFamily: 'var(--font-mono)', color: '#8A94A6' }}>
-        <span>{plan.days.length} {lang === 'en' ? 'days' : '天'} · {mealsPerDay} {lang === 'en' ? 'meals/day' : '餐/天'} · {totalRecipes} {lang === 'en' ? 'recipes' : '道菜'}</span>
-        <div className="flex items-center gap-1">
-          <button onClick={addDay}
-            className="text-[9px] px-1.5 py-0.5 rounded text-[#00E5FF]"
-            style={{ background: 'rgba(0,229,255,0.06)', border: '1px solid rgba(0,229,255,0.12)' }}>
-            +{lang === 'en' ? 'Day' : '天'}
-          </button>
-          <button onClick={addSlotToAll}
-            className="text-[9px] px-1.5 py-0.5 rounded text-[#00E5FF]"
-            style={{ background: 'rgba(0,229,255,0.06)', border: '1px solid rgba(0,229,255,0.12)' }}>
-            +{lang === 'en' ? 'Meal' : '餐'}
-          </button>
-          {mealsPerDay > 1 && (
-            <button onClick={() => removeSlotFromAll(mealsPerDay - 1)}
-              className="text-[9px] px-1.5 py-0.5 rounded text-[#FF2E93]"
-              style={{ background: 'rgba(255,46,147,0.04)', border: '1px solid rgba(255,46,147,0.1)' }}>
-              -{lang === 'en' ? 'Meal' : '餐'}
-            </button>
-          )}
-        </div>
+        <span>{plan.days.length} {lang === 'en' ? 'days' : '天'} · {totalSlots} {lang === 'en' ? 'slots' : '个餐次'} · {totalRecipes} {lang === 'en' ? 'recipes' : '道菜'}</span>
+        <button onClick={addDay}
+          className="text-[9px] px-1.5 py-0.5 rounded text-[#00E5FF]"
+          style={{ background: 'rgba(0,229,255,0.06)', border: '1px solid rgba(0,229,255,0.12)' }}>
+          +{lang === 'en' ? 'Day' : '天'}
+        </button>
       </div>
 
       {/* Days */}
@@ -169,7 +147,7 @@ export default function PlanDetail({ plan, onUpdate, onBack, onDelete, onGenerat
           return (
             <div key={day.id} className="mb-3 rounded-lg overflow-hidden"
               style={{ background: '#121620', border: '1px solid rgba(0, 229, 255, 0.06)' }}>
-              {/* Day header */}
+              {/* Day header — no delete button */}
               <div className="flex items-center justify-between px-3 py-2"
                 style={{ borderBottom: '1px solid rgba(0, 229, 255, 0.04)' }}>
                 <div className="flex items-center gap-2">
@@ -177,13 +155,9 @@ export default function PlanDetail({ plan, onUpdate, onBack, onDelete, onGenerat
                     className="w-16 bg-transparent text-[12px] text-text-primary outline-none"
                     style={{ fontFamily: 'var(--font-display)', fontWeight: 600 }} />
                   <span className="text-[9px] text-text-dim" style={{ fontFamily: 'var(--font-mono)' }}>
-                    · {recipeCount} {lang === 'en' ? 'recipes' : '道菜'}
+                    · {day.slots.length} {lang === 'en' ? 'meals' : '餐'} · {recipeCount} {lang === 'en' ? 'set' : '道'}
                   </span>
                 </div>
-                <button onClick={() => removeDay(day.id)}
-                  className="text-[10px] text-text-dim hover:text-[#FF2E93]" style={{ fontFamily: 'var(--font-mono)' }}>
-                  <X size={12} />
-                </button>
               </div>
 
               {/* Slots */}
@@ -213,9 +187,24 @@ export default function PlanDetail({ plan, onUpdate, onBack, onDelete, onGenerat
                         <Search size={10} className="inline mr-1" />{t('planner.emptySlot')}
                       </button>
                     )}
+                    {/* Remove this slot */}
+                    <button onClick={() => removeSlotFromDay(day.id, slot.id)}
+                      className="text-text-dim hover:text-[#FF2E93] flex-shrink-0">
+                      <Minus size={10} />
+                    </button>
                   </div>
                 )
               })}
+
+              {/* Add slot to this day */}
+              <div className="px-3 py-1.5 flex justify-center"
+                style={{ borderTop: '1px solid rgba(0, 229, 255, 0.02)' }}>
+                <button onClick={() => addSlotToDay(day.id)}
+                  className="text-[9px] px-2 py-0.5 rounded flex items-center gap-1 transition-colors hover:bg-charcoal-800/30"
+                  style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF' }}>
+                  <Plus size={10} />{lang === 'en' ? 'Add meal' : '添加餐次'}
+                </button>
+              </div>
             </div>
           )
         })}
@@ -234,21 +223,6 @@ export default function PlanDetail({ plan, onUpdate, onBack, onDelete, onGenerat
           style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF', border: '1px dashed rgba(0, 229, 255, 0.12)' }}>
           {t('planner.addDay')}
         </button>
-
-        {/* Slot name input for adding */}
-        {plan.days.length > 0 && (
-          <div className="px-3 py-2 mt-2 flex items-center gap-2 rounded-md"
-            style={{ border: '1px dashed rgba(0, 229, 255, 0.08)' }}>
-            <input value={newSlotName} onChange={(e) => setNewSlotName(e.target.value)}
-              placeholder={lang === 'en' ? 'Slot name' : '餐次名称'}
-              className="flex-1 bg-transparent text-[11px] text-text-primary placeholder:text-text-dim outline-none"
-              style={{ fontFamily: 'var(--font-body)' }} />
-            <button onClick={addSlotToAll}
-              className="text-[10px] px-2 py-0.5 rounded" style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF', background: 'rgba(0,229,255,0.06)', border: '1px solid rgba(0,229,255,0.15)' }}>
-              {t('planner.addSlot')}
-            </button>
-          </div>
-        )}
 
         {/* Generate list */}
         <button onClick={onGenerateList}

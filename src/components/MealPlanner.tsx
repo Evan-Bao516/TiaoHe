@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { ChevronRight, Minus, Plus, Trash2, CheckSquare, Square } from 'lucide-react'
 import type { MealPlan, MealDay } from '../data/types'
 import { RECIPES } from '../data/recipes'
@@ -15,6 +15,16 @@ const DEFAULT_SLOT_NAMES = ['早餐', '午餐', '晚餐']
 
 function makeId(): string { return crypto.randomUUID() }
 
+function getNextDefaultName(plans: MealPlan[], lang: 'zh' | 'en'): string {
+  const prefix = lang === 'en' ? 'New Plan ' : '新计划'
+  let maxN = 0
+  for (const p of plans) {
+    const m = p.name.match(new RegExp(`^${prefix}(\\d+)$`))
+    if (m) maxN = Math.max(maxN, parseInt(m[1], 10))
+  }
+  return `${prefix}${maxN + 1}`
+}
+
 export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
   const { t, lang } = useLang()
   const { plans, createPlan, deletePlan, updatePlan } = useMealPlanner()
@@ -24,30 +34,48 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   // New plan config
-  const [newDays, setNewDays] = useState(7)
-  const [newMealsPerDay, setNewMealsPerDay] = useState(2)
+  const [newDays, setNewDays] = useState('7')
+  const [newMealsPerDay, setNewMealsPerDay] = useState('2')
+  const [newName, setNewName] = useState('')
+
+  const defaultName = useMemo(() => getNextDefaultName(plans, lang), [plans, lang])
 
   const handleGenerateList = useCallback((plan: MealPlan) => {
     onGenerateList(plan)
   }, [onGenerateList])
 
   const handleCreatePlan = () => {
-    const now = Date.now()
-    const slotNames = DEFAULT_SLOT_NAMES.slice(0, newMealsPerDay)
-    const days: MealDay[] = Array.from({ length: newDays }, (_, i) => ({
+    const days = parseInt(newDays, 10) || 7
+    const meals = parseInt(newMealsPerDay, 10) || 2
+    const slotNames = DEFAULT_SLOT_NAMES.slice(0, meals)
+    const extraSlots = meals - slotNames.length
+
+    const planDays: MealDay[] = Array.from({ length: days }, (_, i) => ({
       id: makeId(),
       label: `${lang === 'en' ? 'Day' : '第'}${i + 1}${lang === 'en' ? '' : '天'}`,
-      slots: slotNames.map((name) => ({ id: makeId(), name, recipeId: null })),
+      slots: [
+        ...slotNames.map((name) => ({ id: makeId(), name, recipeId: null })),
+        ...Array.from({ length: extraSlots > 0 ? extraSlots : 0 }, () => ({
+          id: makeId(), name: lang === 'en' ? 'Meal' : '餐次', recipeId: null,
+        })),
+      ],
     }))
+
     createPlan({
       id: makeId(),
-      name: lang === 'en' ? 'New Plan' : '新计划',
-      createdAt: now,
-      days,
+      name: newName.trim() || defaultName,
+      createdAt: Date.now(),
+      days: planDays,
     })
     setShowNew(false)
-    setNewDays(7)
-    setNewMealsPerDay(2)
+    setNewDays('7')
+    setNewMealsPerDay('2')
+    setNewName('')
+  }
+
+  const openNewPlan = () => {
+    setNewName(defaultName)
+    setShowNew(true)
   }
 
   const toggleSelect = (id: string) => {
@@ -91,6 +119,9 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
     )
   }
 
+  const daysNum = parseInt(newDays, 10) || 7
+  const mealsNum = parseInt(newMealsPerDay, 10) || 2
+
   return (
     <div className="flex flex-col min-h-0">
       {/* Header */}
@@ -111,7 +142,7 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
               <Trash2 size={10} className="inline mr-1" />{t('planner.delete')}
             </button>
           )}
-          <button onClick={() => setShowNew(true)}
+          <button onClick={openNewPlan}
             className="px-3 py-1 rounded text-[10px]" style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF', background: 'rgba(0,229,255,0.06)', border: '1px solid rgba(0,229,255,0.15)' }}>
             {t('planner.newPlan')}
           </button>
@@ -149,7 +180,7 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
             <span className="text-[32px] mb-3 opacity-30">📋</span>
             <p className="text-[14px]" style={{ fontFamily: 'var(--font-display)' }}>{t('planner.empty')}</p>
             <p className="text-[11px] mt-1" style={{ fontFamily: 'var(--font-body)' }}>{t('planner.emptyHint')}</p>
-            <button onClick={() => setShowNew(true)}
+            <button onClick={openNewPlan}
               className="mt-4 px-4 py-2 rounded text-[11px]" style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF', background: 'rgba(0,229,255,0.06)', border: '1px solid rgba(0,229,255,0.15)' }}>
               {t('planner.newPlan')}
             </button>
@@ -158,6 +189,7 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
 
         {plans.map((plan) => {
           const totalRecipes = plan.days.reduce((s, d) => s + d.slots.filter((sl) => sl.recipeId).length, 0)
+          const totalSlots = plan.days.reduce((s, d) => s + d.slots.length, 0)
           const isSelected = selectedIds.has(plan.id)
           return (
             <div key={plan.id} className="flex items-center gap-2 mb-3">
@@ -178,7 +210,7 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
                     {!deleteMode && <ChevronRight size={14} className="text-text-dim" />}
                   </div>
                   <span className="text-[10px] text-text-dim" style={{ fontFamily: 'var(--font-mono)' }}>
-                    {plan.days.length} {lang === 'en' ? 'days' : '天'} · {plan.days[0]?.slots.length || 0} {lang === 'en' ? 'meals/day' : '餐/天'} · {totalRecipes} {lang === 'en' ? 'recipes' : '道菜'}
+                    {plan.days.length} {lang === 'en' ? 'days' : '天'} · {totalSlots} {lang === 'en' ? 'meals' : '餐'} · {totalRecipes} {lang === 'en' ? 'recipes' : '道菜'}
                   </span>
                   {plan.days.slice(0, 3).map((day) => (
                     <div key={day.id} className="mt-2 flex gap-1 flex-wrap items-center">
@@ -201,7 +233,7 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
         })}
       </div>
 
-      {/* New plan modal — configurator */}
+      {/* New plan modal */}
       {showNew && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
           style={{ background: 'rgba(10, 14, 23, 0.85)', backdropFilter: 'blur(4px)' }}>
@@ -211,28 +243,44 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
               {lang === 'en' ? 'New Meal Plan' : '新建餐食计划'}
             </h3>
 
+            {/* Plan name */}
+            <div className="mb-4">
+              <label className="text-[10px] tracking-[0.1em] uppercase text-text-dim mb-2 block"
+                style={{ fontFamily: 'var(--font-mono)' }}>
+                {lang === 'en' ? 'Plan Name' : '计划名称'}
+              </label>
+              <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)}
+                placeholder={defaultName}
+                className="w-full bg-transparent text-[14px] text-text-primary px-3 py-2 rounded-md placeholder:text-text-dim"
+                style={{ fontFamily: 'var(--font-body)', border: '1px solid rgba(0, 229, 255, 0.12)' }} />
+            </div>
+
             {/* Days picker */}
             <div className="mb-4">
               <label className="text-[10px] tracking-[0.1em] uppercase text-text-dim mb-2 block"
                 style={{ fontFamily: 'var(--font-mono)' }}>
-                {lang === 'en' ? 'Days' : '天数'} · {newDays}
+                {lang === 'en' ? 'Days' : '天数'} (1-14)
               </label>
               <div className="flex items-center gap-3">
-                <button onClick={() => setNewDays((d) => Math.max(1, d - 1))}
-                  className="w-10 h-10 rounded-md flex items-center justify-center transition-colors hover:bg-charcoal-800/50"
+                <button onClick={() => setNewDays((d) => String(Math.max(1, (parseInt(d, 10) || 7) - 1)))}
+                  className="w-10 h-10 rounded-md flex items-center justify-center transition-colors hover:bg-charcoal-800/50 flex-shrink-0"
                   style={{ border: '1px solid rgba(0, 229, 255, 0.1)' }}>
                   <Minus size={16} className="text-text-dim" />
                 </button>
-                <div className="flex-1 h-1 rounded-full overflow-hidden"
-                  style={{ background: 'rgba(0, 229, 255, 0.06)' }}>
-                  <div className="h-full rounded-full transition-all duration-200"
-                    style={{ width: `${(newDays / 14) * 100}%`, background: '#00E5FF', opacity: 0.5 }} />
-                </div>
-                <button onClick={() => setNewDays((d) => Math.min(14, d + 1))}
-                  className="w-10 h-10 rounded-md flex items-center justify-center transition-colors hover:bg-charcoal-800/50"
+                <input type="number" value={newDays} onChange={(e) => setNewDays(e.target.value)}
+                  min={1} max={14}
+                  className="flex-1 bg-transparent text-[24px] text-text-primary text-center outline-none"
+                  style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }} />
+                <button onClick={() => setNewDays((d) => String(Math.min(14, (parseInt(d, 10) || 7) + 1)))}
+                  className="w-10 h-10 rounded-md flex items-center justify-center transition-colors hover:bg-charcoal-800/50 flex-shrink-0"
                   style={{ border: '1px solid rgba(0, 229, 255, 0.1)' }}>
                   <Plus size={16} className="text-text-dim" />
                 </button>
+              </div>
+              <div className="mt-1.5 h-1 rounded-full overflow-hidden"
+                style={{ background: 'rgba(0, 229, 255, 0.06)' }}>
+                <div className="h-full rounded-full transition-all duration-200"
+                  style={{ width: `${(daysNum / 14) * 100}%`, background: '#00E5FF', opacity: 0.5 }} />
               </div>
             </div>
 
@@ -240,34 +288,33 @@ export default function MealPlanner({ onGenerateList }: MealPlannerProps) {
             <div className="mb-4">
               <label className="text-[10px] tracking-[0.1em] uppercase text-text-dim mb-2 block"
                 style={{ fontFamily: 'var(--font-mono)' }}>
-                {lang === 'en' ? 'Meals per Day' : '每日餐次'} · {newMealsPerDay}
+                {lang === 'en' ? 'Meals per Day' : '每日餐次'} (1-5)
               </label>
               <div className="flex items-center gap-3 mb-2">
-                <button onClick={() => setNewMealsPerDay((m) => Math.max(1, m - 1))}
-                  className="w-10 h-10 rounded-md flex items-center justify-center transition-colors hover:bg-charcoal-800/50"
+                <button onClick={() => setNewMealsPerDay((m) => String(Math.max(1, (parseInt(m, 10) || 2) - 1)))}
+                  className="w-10 h-10 rounded-md flex items-center justify-center transition-colors hover:bg-charcoal-800/50 flex-shrink-0"
                   style={{ border: '1px solid rgba(0, 229, 255, 0.1)' }}>
                   <Minus size={16} className="text-text-dim" />
                 </button>
-                <div className="flex-1 h-1 rounded-full overflow-hidden"
-                  style={{ background: 'rgba(0, 229, 255, 0.06)' }}>
-                  <div className="h-full rounded-full transition-all duration-200"
-                    style={{ width: `${(newMealsPerDay / 5) * 100}%`, background: '#00E5FF', opacity: 0.5 }} />
-                </div>
-                <button onClick={() => setNewMealsPerDay((m) => Math.min(5, m + 1))}
-                  className="w-10 h-10 rounded-md flex items-center justify-center transition-colors hover:bg-charcoal-800/50"
+                <input type="number" value={newMealsPerDay} onChange={(e) => setNewMealsPerDay(e.target.value)}
+                  min={1} max={5}
+                  className="flex-1 bg-transparent text-[24px] text-text-primary text-center outline-none"
+                  style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }} />
+                <button onClick={() => setNewMealsPerDay((m) => String(Math.min(5, (parseInt(m, 10) || 2) + 1)))}
+                  className="w-10 h-10 rounded-md flex items-center justify-center transition-colors hover:bg-charcoal-800/50 flex-shrink-0"
                   style={{ border: '1px solid rgba(0, 229, 255, 0.1)' }}>
                   <Plus size={16} className="text-text-dim" />
                 </button>
               </div>
               {/* Slot name preview */}
               <div className="flex gap-1 flex-wrap">
-                {DEFAULT_SLOT_NAMES.slice(0, newMealsPerDay).map((name) => (
+                {DEFAULT_SLOT_NAMES.slice(0, mealsNum).map((name) => (
                   <span key={name} className="px-2 py-0.5 rounded text-[9px]"
                     style={{ fontFamily: 'var(--font-body)', color: '#8A94A6', background: 'rgba(0,229,255,0.04)', border: '1px solid rgba(0,229,255,0.08)' }}>
                     {name}
                   </span>
                 ))}
-                {newMealsPerDay > DEFAULT_SLOT_NAMES.length && (
+                {mealsNum > DEFAULT_SLOT_NAMES.length && (
                   <span className="px-2 py-0.5 rounded text-[9px]"
                     style={{ fontFamily: 'var(--font-body)', color: '#5A6272', background: 'rgba(138,148,166,0.04)', border: '1px dashed rgba(138,148,166,0.15)' }}>
                     {lang === 'en' ? 'Custom' : '自定义'}
