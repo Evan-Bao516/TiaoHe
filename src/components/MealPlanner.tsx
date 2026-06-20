@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Plus, ChevronRight } from 'lucide-react'
-import type { MealPlan, Recipe } from '../data/types'
+import { ChevronRight } from 'lucide-react'
+import type { MealPlan } from '../data/types'
 import { RECIPES } from '../data/recipes'
 import { useMealPlanner, createPreset } from '../hooks/useMealPlanner'
 import PlanDetail from './PlanDetail'

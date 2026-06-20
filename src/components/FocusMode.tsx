@@ -16,7 +16,7 @@ function parseDuration(duration: string): number {
   return match ? parseInt(match[1], 10) * 60 : 0
 }
 
-export default function FocusMode({ steps, onExit }: FocusModeProps) {
+export default function FocusMode({ steps, onExit, onComplete }: FocusModeProps) {
   const [visible, setVisible] = useState(false)
   const [activeStep, setActiveStep] = useState(0)
   const [flash, setFlash] = useState(false)
@@ -131,16 +131,18 @@ export default function FocusMode({ steps, onExit }: FocusModeProps) {
       setShowConfirm(true)
     } else {
       setVisible(false)
+      onComplete?.((activeStep + 1) / steps.length)
       setTimeout(onExit, 400)
     }
-  }, [onExit, sound, hasActiveTimer, isTheory])
+  }, [onExit, onComplete, sound, hasActiveTimer, isTheory, activeStep, steps.length])
 
   const handleConfirmExit = useCallback(() => {
     sound.click()
     setShowConfirm(false)
     setVisible(false)
+    onComplete?.((activeStep + 1) / steps.length)
     setTimeout(onExit, 400)
-  }, [onExit, sound])
+  }, [onExit, onComplete, sound, activeStep, steps.length])
 
   const handleCancelExit = useCallback(() => {
     sound.click()
@@ -186,10 +188,11 @@ export default function FocusMode({ steps, onExit }: FocusModeProps) {
       sound.zenith()
       setTimeout(() => {
         setVisible(false)
+        onComplete?.(1)
         setTimeout(onExit, 400)
       }, 1200)
     }
-  }, [activeStep, onExit, sound])
+  }, [activeStep, onExit, onComplete, sound])
 
   const current = steps[activeStep]
 
@@ -207,10 +210,10 @@ export default function FocusMode({ steps, onExit }: FocusModeProps) {
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#080C13] gap-4">
           <span className="text-[48px]">📱</span>
           <p className="text-[18px] text-text-primary" style={{ fontFamily: 'var(--font-display)', fontWeight: 600 }}>
-            {lang === 'en' ? 'Please rotate your device' : '请旋转手机'}
+            {t('focus.rotatePrompt')}
           </p>
           <p className="text-[13px] text-text-dim" style={{ fontFamily: 'var(--font-body)' }}>
-            {lang === 'en' ? 'Focus Mode works best in landscape' : 'Focus Mode 在横屏下体验更佳'}
+            {t('focus.rotateHint')}
           </p>
         </div>
       )}

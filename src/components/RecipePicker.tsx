@@ -10,7 +10,7 @@ interface RecipePickerProps {
 }
 
 export default function RecipePicker({ onSelect, onClose }: RecipePickerProps) {
-  const { t, lang } = useLang()
+  const { lang } = useLang()
   const [query, setQuery] = useState('')
 
   const filtered = useMemo(() => {

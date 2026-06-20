@@ -115,7 +115,7 @@ export default function CartSheet({ cartItems, onClose, onAdd, onRemove, onClear
     lines.push('')
     lines.push(t('clist.shopping'))
     for (const entry of mergedEntries) {
-      const parts = entry.sources.map((s) => `${s.amount} × ${s.qty}份 (${s.recipeName})`)
+      const parts = entry.sources.map((s) => `${s.amount} × ${s.qty}${t('clist.servings')} (${s.recipeName})`)
       lines.push(`  ${entry.nameZh}  ${parts.join('  ')}`)
     }
     await navigator.clipboard.writeText(lines.join('\n'))
@@ -208,7 +208,7 @@ export default function CartSheet({ cartItems, onClose, onAdd, onRemove, onClear
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[11px] tracking-[0.15em] uppercase text-text-dim"
-                style={{ fontFamily: 'var(--font-mono)' }}>📋 今日菜谱</span>
+                style={{ fontFamily: 'var(--font-mono)' }}>{t('clist.recipes')}</span>
               <div style={{ flex: 1, height: 1, background: 'rgba(0, 229, 255, 0.06)' }} />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -237,7 +237,7 @@ export default function CartSheet({ cartItems, onClose, onAdd, onRemove, onClear
           {/* Shopping list */}
           <div className="mb-2 flex items-center gap-2">
             <span className="text-[11px] tracking-[0.15em] uppercase text-text-dim"
-              style={{ fontFamily: 'var(--font-mono)' }}>🛒 采购清单</span>
+              style={{ fontFamily: 'var(--font-mono)' }}>{t('clist.shopping')}</span>
             <div style={{ flex: 1, height: 1, background: 'rgba(0, 229, 255, 0.06)' }} />
           </div>
 
@@ -262,7 +262,7 @@ export default function CartSheet({ cartItems, onClose, onAdd, onRemove, onClear
                           <div key={j} className="flex items-center text-[12px] leading-relaxed"
                             style={{ fontFamily: 'var(--font-mono)', color: '#8A94A6' }}>
                             <span className="w-[70px] flex-shrink-0">{src.amount}</span>
-                            <span className="text-text-dim">× {src.qty}份</span>
+                            <span className="text-text-dim">× {src.qty}{t('clist.servings')}</span>
                             {hasTotal && (
                               <span className="ml-2 text-text-dim">
                                 = {parseAmount(src.amount)!.value * src.qty}{parseAmount(src.amount)!.unit}

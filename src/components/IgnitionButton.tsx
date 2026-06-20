@@ -1,11 +1,13 @@
 import { Flame } from 'lucide-react'
 import { initAudio } from '../hooks/useSoundEngine'
+import { useLang } from '../i18n/context'
 
 interface IgnitionButtonProps {
   onClick: () => void
 }
 
 export default function IgnitionButton({ onClick }: IgnitionButtonProps) {
+  const { t } = useLang()
   const handleClick = () => {
     initAudio()  // iOS: must be called inside a user gesture
     onClick()
@@ -40,7 +42,7 @@ export default function IgnitionButton({ onClick }: IgnitionButtonProps) {
         }}
       >
         <Flame size={18} strokeWidth={1.5} className="text-amber-500" />
-        <span>START</span>
+        <span>{t('detail.start')}</span>
         <span
           className="text-text-dim font-normal"
           style={{ fontFamily: 'var(--font-body)' }}
@@ -51,7 +53,7 @@ export default function IgnitionButton({ onClick }: IgnitionButtonProps) {
           className="text-text-muted font-normal"
           style={{ fontFamily: 'var(--font-body)' }}
         >
-          开始调和
+          {t('detail.startSub')}
         </span>
 
         {/* Hover sweep */}

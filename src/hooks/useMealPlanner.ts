@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import type { MealPlan, MealDay, MealSlot } from '../data/types'
+import type { MealPlan, MealDay } from '../data/types'
 import { useStoredState } from './useStoredState'
 
 function makeId(): string {

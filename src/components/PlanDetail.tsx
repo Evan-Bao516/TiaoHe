@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, Plus, X, Search } from 'lucide-react'
+import { ArrowLeft, X, Search } from 'lucide-react'
 import type { MealPlan, MealDay, MealSlot, Recipe } from '../data/types'
 import { RECIPES } from '../data/recipes'
 import RecipePicker from './RecipePicker'
