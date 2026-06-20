@@ -388,6 +388,7 @@ export default function App() {
             setJournalFormRecipe(null)
           }}
           onCancel={() => {
+            engine.record(journalFormRecipe, 'cook')
             setJournalFormRecipe(null)
           }}
         />
