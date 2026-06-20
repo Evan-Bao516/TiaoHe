@@ -20,6 +20,7 @@ export const T: Record<string, Record<Locale, string>> = {
   'search.clear':       { zh: '清除',  en: 'Clear' },
   'search.noResults':   { zh: '没有找到匹配的菜谱', en: 'No matching recipes' },
   'search.tryOther':    { zh: '试试其他关键词或分类', en: 'Try other keywords or categories' },
+  'search.results':     { zh: '搜索结果', en: 'Search Results' },
 
   /* Homepage sections */
   'home.scenes':        { zh: '场景推荐', en: 'Scene Picks' },
@@ -27,6 +28,8 @@ export const T: Record<string, Record<Locale, string>> = {
   'home.suggested':     { zh: '猜你喜欢', en: 'You Might Like' },
   'home.favorites':     { zh: '我的收藏', en: 'My Favorites' },
   'home.browseAll':     { zh: '浏览全部', en: 'Browse All' },
+  'home.emptyDiscover': { zh: '浏览菜谱后这里会出现个性化推荐', en: 'Personalized recommendations will appear here after you browse recipes' },
+  'home.emptyDiscoverHint': { zh: '去浏览 tab 探索菜谱吧', en: 'Go to the Browse tab to explore recipes' },
 
   /* Blind box */
   'blindbox.button':    { zh: '不知道吃什么？摇一摇', en: 'Not sure what to make? Shake it!' },
@@ -55,7 +58,7 @@ export const T: Record<string, Record<Locale, string>> = {
   'pref.autoHint':      { zh: '已根据你的口味自动排序。手动设置将覆盖自动偏好。', en: 'Sorted by your taste. Manual filters will override.' },
   'pref.sortPreference':{ zh: '按口味推荐',          en: 'By Taste' },
   'pref.sortAlpha':     { zh: '按名称 A-Z',          en: 'A-Z' },
-  'pref.explore':       { zh: '尝鲜',               en: 'Explore' },
+  'pref.explore':       { zh: '🌱 尝鲜',               en: '🌱 Explore' },
 
   /* Filters */
   'filter.quick':       { zh: '快捷筛选', en: 'Quick Filter' },
@@ -156,6 +159,8 @@ export const T: Record<string, Record<Locale, string>> = {
   'focus.continueCooking':{ zh: '继续烹饪', en: 'Keep Cooking' },
   'focus.confirmExit':  { zh: '退出', en: 'Exit' },
   'focus.step':         { zh: 'Step', en: 'Step' },
+  'focus.rotatePrompt': { zh: '请旋转手机', en: 'Please rotate your device' },
+  'focus.rotateHint':   { zh: 'Focus Mode 在横屏下体验更佳', en: 'Focus Mode works best in landscape' },
 
   /* Toast */
   'toast.addedCart':    { zh: '已加入购物清单 🛒', en: 'Added to cart 🛒' },
@@ -204,4 +209,29 @@ export const T: Record<string, Record<Locale, string>> = {
   'misc.servings':      { zh: '人份', en: 'pax' },
   'misc.steps':         { zh: '步', en: 'steps' },
   'misc.items':         { zh: '种食材', en: 'items' },
+
+  /* Cooking Journal */
+  'journal.tab':            { zh: '日志', en: 'Journal' },
+  'journal.empty':          { zh: '还没有烹饪记录', en: 'No cooking records yet' },
+  'journal.emptyHint':      { zh: '做一道菜试试吧', en: 'Cook a recipe to get started' },
+  'journal.monthly':        { zh: '本月 {n} 次 · 平均 {r}★ · 用时 {h}h{m}m', en: 'This month: {n} cooks · avg {r}★ · {h}h{m}m' },
+  'journal.filter':         { zh: '筛选', en: 'Filter' },
+  'journal.clearFilter':    { zh: '清除筛选', en: 'Clear filter' },
+  'journal.manualAdd':      { zh: '+ 手动记录', en: '+ Log Entry' },
+  'journal.delete':         { zh: '删除', en: 'Delete' },
+  'journal.deleteConfirm':  { zh: '确定删除这条记录？', en: 'Delete this entry?' },
+  'journal.daysAgo':        { zh: '天前', en: 'd ago' },
+  'journal.yesterday':      { zh: '昨天', en: 'Yesterday' },
+  'journal.today':          { zh: '今天', en: 'Today' },
+
+  /* Entry Form */
+  'entry.title':            { zh: '记录烹饪', en: 'Log Cooking' },
+  'entry.rating':           { zh: '评分', en: 'Rating' },
+  'entry.actualTime':       { zh: '实际用时（分钟）', en: 'Actual Time (min)' },
+  'entry.notes':            { zh: '笔记（可选）', en: 'Notes (optional)' },
+  'entry.tags':             { zh: '标签（回车添加）', en: 'Tags (Enter to add)' },
+  'entry.photo':            { zh: '📷 拍照', en: '📷 Photo' },
+  'entry.submit':           { zh: '保存记录', en: 'Save Entry' },
+  'entry.cancel':           { zh: '跳过', en: 'Skip' },
+  'entry.tagHint':          { zh: '输入自定义标签，回车添加', en: 'Type tag, press Enter to add' },
 }
