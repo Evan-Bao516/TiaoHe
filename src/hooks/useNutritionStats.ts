@@ -6,11 +6,11 @@ import { useCookJournal } from './useCookJournal'
 /* ─────────────────────────────────────────────────────────────
    Meta-data for cuisine categories (display name + chart color)
    ───────────────────────────────────────────────────────────── */
-const CATEGORY_META: Record<string, { name: string; color: string }> = {
-  chinese: { name: 'Chinese', color: '#E85D3A' },
-  western: { name: 'Western', color: '#4A90D9' },
-  drink:   { name: 'Drink',   color: '#7B61FF' },
-  basic:   { name: 'Basic',   color: '#6B7280' },
+const CATEGORY_META: Record<string, { zh: string; en: string; color: string }> = {
+  chinese: { zh: '中餐', en: 'Chinese', color: '#E85D3A' },
+  western: { zh: '西餐', en: 'Western', color: '#4A90D9' },
+  drink:   { zh: '饮品', en: 'Drinks', color: '#7B61FF' },
+  basic:   { zh: '基础', en: 'Basics', color: '#6B7280' },
 }
 
 /** Format a Unix‑ms timestamp as YYYY‑MM‑DD */
@@ -120,8 +120,14 @@ export function useNutritionStats(
     const cuisineDistribution = [...cuisineCnt.entries()]
       .sort(([, a], [, b]) => b - a)
       .map(([cat, cnt]) => {
-        const meta = CATEGORY_META[cat] ?? { name: cat, color: '#9CA3AF' }
-        return { name: meta.name, count: cnt, color: meta.color }
+        const meta = CATEGORY_META[cat]
+        return {
+          category: cat,
+          name: meta?.zh ?? cat,
+          nameEn: meta?.en ?? cat,
+          count: cnt,
+          color: meta?.color ?? '#9CA3AF',
+        }
       })
 
     /* ── Tag distribution (sorted by count desc) ─────────── */

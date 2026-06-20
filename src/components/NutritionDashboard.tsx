@@ -71,7 +71,7 @@ export default function NutritionDashboard() {
         { icon: Star, label: t('nutri.avgRating'), value: `${stats.avgRating}★` },
         { icon: Clock, label: t('nutri.totalMinutes'), value: formatTime(stats.totalMinutes) },
       ] as const,
-    [stats, t],
+    [stats.totalCookCount, stats.avgRating, stats.totalMinutes, t],
   )
 
   /* ================================================================
@@ -276,7 +276,7 @@ export default function NutritionDashboard() {
                       {t('nutri.cuisine')}
                     </span>
                   </div>
-                  <CuisineDonut data={stats.cuisineDistribution} />
+                  <CuisineDonut data={stats.cuisineDistribution.map((c) => ({ ...c, name: lang === 'en' ? c.nameEn : c.name }))} />
                 </div>
 
                 {/* —— Tag distribution bars —— */}

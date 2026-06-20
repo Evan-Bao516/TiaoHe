@@ -119,7 +119,7 @@ export interface NutritionStats {
   totalMinutes: number
   macros: { protein: number; fats: number; carbs: number }
   kcalTrend: { date: string; kcal: number }[]
-  cuisineDistribution: { name: string; count: number; color: string }[]
+  cuisineDistribution: { category: string; name: string; nameEn: string; count: number; color: string }[]
   tagDistribution: { tag: string; count: number }[]
   topRecipes: { recipeId: string; count: number }[]
 }
