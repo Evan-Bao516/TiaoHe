@@ -239,4 +239,17 @@ export const T: Record<string, Record<Locale, string>> = {
   'entry.tagPlaceholder':   { zh: '例如：宴客、减脂、便当', en: 'e.g. dinner party, meal prep' },
   'entry.changePhoto':      { zh: '更换照片', en: 'Change Photo' },
   'entry.photoSizeLimit':   { zh: '照片大小不能超过 5MB', en: 'Photo size must be under 5MB' },
+
+  /* Reverse Search */
+  'tab.reverseSearch':      { zh: '食材搜菜', en: 'Ingredient Search' },
+  'rsearch.placeholder':    { zh: '输入食材，回车或逗号添加...', en: 'Type ingredients, press Enter to add...' },
+  'rsearch.quickChips':     { zh: '常用食材', en: 'Quick Picks' },
+  'rsearch.perfect':        { zh: '全齐', en: 'Perfect' },
+  'rsearch.near':           { zh: '接近', en: 'Near' },
+  'rsearch.partial':        { zh: '勉强', en: 'Partial' },
+  'rsearch.missing':        { zh: '缺', en: 'Miss' },
+  'rsearch.subOk':          { zh: '可替换', en: 'Sub OK' },
+  'rsearch.addToInventory': { zh: '加入库存', en: 'Add to Fridge' },
+  'rsearch.empty':          { zh: '输入食材开始搜索', en: 'Enter ingredients to start searching' },
+  'rsearch.noMatch':        { zh: '没有菜谱匹配这些食材', en: 'No recipes match these ingredients' },
 }
