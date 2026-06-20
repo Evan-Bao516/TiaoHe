@@ -236,7 +236,7 @@ export default function ReverseSearch({
                             <button onClick={(e) => { e.stopPropagation(); onAddToPlan(r.recipe.id) }}
                               className="px-2 py-0.5 rounded text-[9px] transition-all hover:brightness-110"
                               style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF', background: 'rgba(0, 229, 255, 0.06)', border: '1px solid rgba(0, 229, 255, 0.15)' }}>
-                              + {lang === 'en' ? 'Plan' : '计划'}
+                              {t('plan.addToPlan')}
                             </button>
                           )}
                           <button onClick={(e) => { e.stopPropagation(); handleAddAllToInventory(r.recipe) }}
@@ -276,7 +276,7 @@ export default function ReverseSearch({
                             <button onClick={(e) => { e.stopPropagation(); onAddToPlan(r.recipe.id) }}
                               className="px-2 py-0.5 rounded text-[9px] transition-all hover:brightness-110"
                               style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF', background: 'rgba(0, 229, 255, 0.06)', border: '1px solid rgba(0, 229, 255, 0.15)' }}>
-                              + {lang === 'en' ? 'Plan' : '计划'}
+                              {t('plan.addToPlan')}
                             </button>
                           )}
                           <button onClick={(e) => { e.stopPropagation(); handleAddAllToInventory(r.recipe) }}

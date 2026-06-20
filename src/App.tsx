@@ -327,7 +327,7 @@ export default function App() {
             <button onClick={() => handleAddToPlan(selectedRecipe.id)}
               className="text-[10px] px-2 py-0.5 rounded transition-colors hover:brightness-110"
               style={{ fontFamily: 'var(--font-mono)', color: '#00E5FF', background: 'rgba(0,229,255,0.06)', border: '1px solid rgba(0,229,255,0.15)' }}>
-              + {t('plan.addToPlan')}
+              {t('plan.addToPlan')}
             </button>
           </div>
 
